@@ -1,2 +1,4 @@
 *.pdf
 colors/hamMap*.png
+.spyproject
+__pycache__

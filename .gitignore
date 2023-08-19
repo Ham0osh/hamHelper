@@ -1,6 +1,19 @@
+# Big files
 *.pdf
 colors/hamMap*.png
+
+# IDE
 .spyproject
-__pycache__/*
+
+# Python
+__pycache__/
+.DS_Store
+
+# Testing
 .pytest_cache/
 .coverage
+
+# Distribution
+dist/
+pyproject.toml
+uploading.txt

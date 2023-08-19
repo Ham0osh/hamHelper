@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-from my_pip_package import __version__
+from hamhelper import __version__
 
 # Extra requirements
 extra_maps = [
@@ -8,9 +8,14 @@ extra_maps = [
 ]
 
 extra_test = [
-    *extra_math,
+    *extra_maps,
     'pytest>=4',
     'pytest-cov>=2',
+]
+
+extra_ci = [
+    *extra_test,
+    'python-coveralls',
 ]
 
 extra_dev = [
@@ -21,7 +26,7 @@ extra_dev = [
 setup(
     name='hamhelper',
     version=__version__,
-    description='some helpful tools I use in research and fun',
+    description='Some helpful tools I use in research and fun. Primarily targeted to data visualization and pretty colours.',
 
     url='https://github.com/Ham0osh/hamHelper',
     author='Hamish Johnson',
@@ -35,12 +40,17 @@ setup(
     ],
 
     extras_require={
-        'map': extra_map,
+        'map': extra_maps,
         'dev': extra_dev,
     },
 
     classifiers=[
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
+        'Framework :: Flake8',
+        'Intended Audience :: Science/Research',
+        'License :: Free for non-commercial use',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 3.10',
+        'Topic :: Scientific/Engineering :: Physics',
+        'Topic :: Scientific/Engineering :: Visualization',
     ],
 )

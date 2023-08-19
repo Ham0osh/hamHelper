@@ -1,0 +1,15 @@
+README.md
+setup.py
+hamhelper/__init__.py
+hamhelper/colours.py
+hamhelper/errors.py
+hamhelper/plotting.py
+hamhelper.egg-info/PKG-INFO
+hamhelper.egg-info/SOURCES.txt
+hamhelper.egg-info/dependency_links.txt
+hamhelper.egg-info/requires.txt
+hamhelper.egg-info/top_level.txt
+tests/test_colours.py
+tests/test_errors.py
+tests/test_init.py
+tests/test_plotting.py

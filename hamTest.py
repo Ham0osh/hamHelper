@@ -8,19 +8,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 import hamHelp as hamHelp
 from scipy.optimize import curve_fit
+import os
 
-rcFile = "hamStyle.mplstyle"
-testOutPath = "rc_test_plots/"
+wd = os.getcwd()
 
+rcFile = "styles\\hamStyle.mplstyle"
 rcName = rcFile.split('.')[0]
+
+testOutPath = wd+"\\rc_test_plots\\"+rcName+'\\'
+if not os.path.exists(testOutPath):
+    os.makedirs(testOutPath)
 
 def add_labels(ax = None, title = "Title", *args, **kwargs):
     if ax is None:
         ax = plt.gca()
     
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.title(title,*args, **kwargs)
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_title(title, *args, **kwargs)
 
     return None
 
@@ -39,7 +44,7 @@ for A, P in zip(amps,phase):
 
 add_labels(title = title)
 plt.legend()
-plt.savefig(f"{testOutPath}/{rcName}/{title}.png", dpi = 300)
+plt.savefig(f"{testOutPath}{title}.png", dpi = 300)
 plt.show()
 
 # Line plot ###################################################################
@@ -54,7 +59,7 @@ for A, P in zip(amps,phase):
 
 add_labels(title = title)
 plt.legend()
-plt.savefig(f"{testOutPath}{rcName}/{title}.png", dpi = 300)
+plt.savefig(f"{testOutPath}{title}.png", dpi = 300)
 plt.show()
 
 
@@ -67,7 +72,7 @@ dat = np.random.normal(size = N)
 plt.hist(dat)
 
 add_labels(title = title)
-plt.savefig(f"{testOutPath}{rcName}/{title}.png", dpi = 300)
+plt.savefig(f"{testOutPath}{title}.png", dpi = 300)
 plt.show()
 
 
@@ -85,7 +90,7 @@ for i, func in enumerate(dists):
 
 add_labels(title = title)
 plt.legend()
-plt.savefig(f"{testOutPath}{rcName}/{title}.png", dpi = 300)
+plt.savefig(f"{testOutPath}{title}.png", dpi = 300)
 plt.show()
 
 
@@ -128,35 +133,56 @@ ax_histy = ax.inset_axes([1.05, 0, 0.25, 1], sharey=ax)
 scatter_hist(x, y, ax, ax_histx, ax_histy)
 
 add_labels(title = '')
-ax_histx.set_title("title")
-plt.savefig(f"{testOutPath}{rcName}/{title}.png", dpi = 300)
+ax_histx.set_title(title)
+plt.savefig(f"{testOutPath}{title}.png", dpi = 300)
 plt.show()
 
 
-# Fit
+# Exponential Scale Fit #######################################################
+title = "Exponential Scale Best Fit"
+fig, (ax, ax_resid) = plt.subplots(2, 1, figsize=(6, 6), sharex=True,
+                                   gridspec_kw={'height_ratios': [3, 1]})
+plt.subplots_adjust(hspace=0.1)
+np.random.seed(444)
 a = 1
-b = 1
+b = 100
 
-def func(x, A,B):
+def func(x, A, B):
     return A*np.exp(x) + B*np.sin(x)/x
 
-x = np.linspace(0,10,20)
-y = func(x, a, b) + np.random.normal(scale = 0.1, size = 20)
-yerr = np.random.normal(scale = 0.7, size = 20)
+x = np.linspace(0.1,10,20)
+y = func(x, a, b)*(1 + np.random.normal(scale = 0.1, size = 20)/x)
+yerr = np.random.poisson(lam=7, size=20)*np.sqrt(func(x, a, b))**(2/3)
+ax.errorbar(x, y, yerr = yerr, fmt='.', color='C0', label='Data')
 
-pOpt, pCov = curve_fit(func, x, y, sigma = yerr, absolute_sigma = True)
+pOpt, pCov = curve_fit(func, x, y, sigma=yerr, absolute_sigma=True, maxfev=6000)
 errvec = np.sqrt(np.diag(pCov))
 A, B = pOpt
 Aerr, Berr = errvec 
+modelx = np.linspace(0.95*np.min(x), 1.05*np.max(x), 100)
+modely = func(modelx, A, B)
+ax.plot(modelx, modely, '-', color='C1', label='Least Squares Fit')
 
-plt.errorbar(x, y, yerr = yerr, fmt = '.')
+resid = y - func(x, A, B)
+normres = resid/yerr
+
+ax_resid.plot(x, normres, '.', color='C0')
+
+ax.set(ylabel='y', title=title)
+ax_resid.set(xlabel='x')
+ax.set_yscale('log')
+ax.legend()
+plt.savefig(f"{testOutPath}{title}.png", dpi = 300)
+
+plt.show()
+
 
 
 # Amplitude multiples
 N = 6
 offset = 1
 
-amp = 0.7 + np.random.nurmal(scale = 0.15, size = N)
+amp = 0.7 + np.random.normal(scale = 0.15, size = N)
 
 
 

@@ -4,6 +4,9 @@ colors/hamMap*.png
 
 # IDE
 .spyproject
+.spyproject/
+.pylint.d
+__pycache__
 
 # Python
 __pycache__/
@@ -12,6 +15,7 @@ __pycache__/
 # Testing
 .pytest_cache/
 .coverage
+.egg-info
 
 # Distribution
 dist/

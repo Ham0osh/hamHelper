@@ -2,6 +2,9 @@
 
 *Coming soon*
 
+**Installation**
+`pip install hamhelper`
+
 **Purpose**
 
 This package contains a set of helper functions and methods I use. Primarily geared towards physics, experimental analysis, and data visualization. The goal is to simplify common procedures around generating pretty plots Mitch minimal chart-junk as well as getting the values that matter (ie. curve fit routine that also computes common values of merrit).

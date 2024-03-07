@@ -27,30 +27,30 @@ HamHelper.    # package root
 |- colours    # colourmap definitions, helper functions, and custom colour class HamColor 
 ```
 
-
+---
 ## Purpose
 
 This package contains a set of helper functions and methods I use. Primarily geared towards physics, experimental analysis, and data visualization. The goal is to simplify common procedures around generating pretty plots with minimal chart-junk as well as getting the values that matter (ie. curve fit routine that also computes standard error and chi squared). In general, there are three parts:
 
 ### plotting
-```
-despine(axis = None,       # mpl.axes object to act on, default plt.gca().  
-        trim = False,      # If true trims axes to the limiting ticks, default False.  
-        drop = 0,          #  
-        noLine = False,    #  
-        bottom = True,     #  
-        left = True,       #  
-        top = False,       #  
-        right = False,     #  
-        ): 
-```
+**hamhelper.plotting.despine()**  
 Simple matplotlib wrapper to despine. Offers offset axis as well as trimmed axis like in Seaborn.  
-**Parameters:**
-> **axis: None or mpl.axes object**  
->     The axes objectto act on, default plt.gca().  
+```
+despine(axis = None, trim = False, drop = 0, noLine = False, bottom = True, left = True, top = False, right = False):  
+```
+> **axis: None or mpl.axes object** (opt.)  
+>     The axes object to act on, default plt.gca().  
+> **trim: bool** (opt.)  
+>     If true trims axes to the limiting ticks, default False.  
+> **drop: float** (opt.)  
+>     Distance to space spine from axes in pixels. Default 0.  
+> **noLine: bool** (opt.)  
+>     If true removes the spine but keeps the axis ticks, default False.  
+> **bottom, left, top, right: bool** (opt.)  
+>     Enable or dissable the corresponding axes spine, default keeps bottom and left, removes top and right.  
 
 
-#### hamhelper.plotting.errorbands()  
+**hamhelper.plotting.errorbands()**  
 Wrapper of matplotlib.pyplot.errorbar producing continuous bands instead of stems. You can additionaly enable the caps still.  
 ```
 errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):  
@@ -61,14 +61,15 @@ errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):
 >     The y dimension of pairwise data.  
 > **yerr: np.array like**  
 >     The error in the y dimension of pairwise data.  
-> **capsize: float**  
+> **capsize: float** (opt.)  
 >     The width of caps to be added above each datapoint at the same location as the error band.  
-> **ax: None or plt.axes object**  
+> **ax: None or plt.axes object** (opt.)  
 >     Can specify to plot on another axis, defaults to plt.gca()  
-> **color: tuple or string**  
+> **color: tuple or string** (opt.)  
 >     Facecolor of the error band. If tuple provided, expects a tuple of RGB or RGBA values. If string provided expects a hex '#RRGGBB' or matplotlib named color. Defaults None for no fill color.  
-> ** \*args & \*\*kwargs:**  
+> <b>\*args & \*\*kwargs:</b> (opt.)  
 >     Passed to plt.ax.fill\_between().  
 
+---
 > ### colours
 > A suite of colour sets and colour maps I use with a custom `HamColor` class to easily import and play with the colours. Just stuff I like to use!

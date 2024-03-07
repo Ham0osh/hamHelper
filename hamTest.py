@@ -6,11 +6,13 @@ Created on Fri May 19 22:19:18 2023
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import hamHelp as hamHelp
 from scipy.optimize import curve_fit
 import os
 
 wd = os.getcwd()
+print(wd)
+
+import hamHelp as hamHelp
 
 rcFile = "styles\\hamStyle.mplstyle"
 rcName = rcFile.split('.')[0]

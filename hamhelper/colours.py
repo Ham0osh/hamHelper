@@ -427,13 +427,13 @@ class HamColor:
             plt.savefig(pathLoc,dpi = 300)
             plt.show()
     
-    def truncate(self, start = 0, stop = 1, n = 256, update = True, *args):
+    def truncate(self, start = 0, stop = 1, subsample = 256, update = True):
         """Create a new colormap from a reduced range of an existing map.
 
         Args:
             start (int, optional): Starting fraction from 0 to 1. Defaults to 0.
             stop (int, optional): Ending fraction from 0 to 1. Defaults to 1.
-            n (int, optional): Sample resolution, reduce to creat linear discrete map. Defaults to 256.
+            subsample (int, optional): Sample resolution, reduce to create linear discrete map. Defaults to 256.
             update (bool, optional): Update existing object to this new one, otherwise returns a new
                                      HamMap object. Defaults to True.
 
@@ -443,11 +443,10 @@ class HamColor:
         new_name = f'{name}-truncated({start:.2f},{stop:.2f})'
         new_cmap = mcolors.LinearSegmentedColormap.from_list(new_name, self.cmap(np.linspace(start, stop, n)))
         if update:
-            self.name = new_name
-            self.cmap = new_cmap
-            self.discrete_len = n
+            self._name = new_name
+            self._cmap = new_cmap
         else:
-            return HamColor(new_cmap, length = n)
+            return HamColor(new_cmap, length = self._discrete_len)
 
     def example_map(self, ax, N: int = None, shape_file = '\lpr_000b16a_e'):
         """Generate example map from a map of canada on a given matplotlib axis colored in N colors.
@@ -461,9 +460,14 @@ class HamColor:
             Basemap: Basemap opject describing the map plotted.
         """
         # mapping imports
-        from mpl_toolkits.basemap import Basemap
-        from matplotlib.patches import Polygon
-        from matplotlib.collections import PatchCollection
+        try:
+      		from mpl_toolkits.basemap import Basemap
+	        from matplotlib.patches import Polygon
+	        from matplotlib.collections import PatchCollection
+		except exception as E:
+			print("Error importing Basemap, Polygon, or PatchCollection from matplotlib!")
+			print(E)
+			return 0 
         import os
 
         if N is None:

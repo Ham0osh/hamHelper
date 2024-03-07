@@ -62,6 +62,7 @@ def despine(axis = None, trim = False, drop = 0, noLine = False,
     if noLine:
         for pos in ['bottom', 'left']:
                 axis.spines[pos].set_visible(False)
+    return None  
    
 def errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):
     if ax == None:

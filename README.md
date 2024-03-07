@@ -50,11 +50,11 @@ Simple matplotlib wrapper to despine. Offers offset axis as well as trimmed axis
 >     The axes objectto act on, default plt.gca().  
 
 
+#### hamhelper.plotting.errorbands()  
+Wrapper of matplotlib.pyplot.errorbar producing continuous bands instead of stems. You can additionaly enable the caps still.  
 ```
 errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):  
 ```
-Wrapper of matplotlib.pyplot.errorbar producing continuous bands instead of stems. You can additionaly enable the caps still.  
-**Parameters:**
 > **x: np.array like**  
 >     The x dimension of pairwise data.  
 > **y: np.array like**  
@@ -63,6 +63,12 @@ Wrapper of matplotlib.pyplot.errorbar producing continuous bands instead of stem
 >     The error in the y dimension of pairwise data.  
 > **capsize: float**  
 >     The width of caps to be added above each datapoint at the same location as the error band.  
+> **ax: None or plt.axes object**  
+>     Can specify to plot on another axis, defaults to plt.gca()  
+> **color: tuple or string**  
+>     Facecolor of the error band. If tuple provided, expects a tuple of RGB or RGBA values. If string provided expects a hex '#RRGGBB' or matplotlib named color. Defaults None for no fill color.  
+> ** \*args & \*\*kwargs:**  
+>     Passed to plt.ax.fill\_between().  
 
 > ### colours
 > A suite of colour sets and colour maps I use with a custom `HamColor` class to easily import and play with the colours. Just stuff I like to use!

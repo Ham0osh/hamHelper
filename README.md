@@ -1,4 +1,4 @@
-# hamHelper
+# hamHelper [![PyPI version](https://badge.fury.io/py/hamhelper.svg)](https://badge.fury.io/py/hamhelper)
 
 ### Description
 This repository contains the HamHelper package written in Python3 for scientific plotting and analysis tools geared towards speeding up common workflows in my experience. This is mainly a wrapper of matplotlib with some script and numpy for common physics use cases.

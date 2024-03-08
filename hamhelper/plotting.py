@@ -7,7 +7,7 @@ Created on Sat Aug 20 2023
 Contributions 'borrowed' from:
  - 
 """
-from hamhelper.errors import assert_error
+from errors import assert_error
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as mcm
@@ -62,6 +62,7 @@ def despine(axis = None, trim = False, drop = 0, noLine = False,
     if noLine:
         for pos in ['bottom', 'left']:
                 axis.spines[pos].set_visible(False)
+    return None  
    
 def errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):
     if ax == None:

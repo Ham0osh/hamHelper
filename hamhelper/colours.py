@@ -8,8 +8,8 @@ Created on Thu Jan 12 11:49:54 2023
 Contributions 'borrowed' from:
  - wackywendell/mutedplots: https://github.com/wackywendell/mutedplots/blob/master/mutedcolors.py
 """
-from hamhelper.errors import assert_error
-from hamhelper.plotting import despine
+from errors import assert_error
+from plotting import despine
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as mcm
@@ -48,7 +48,7 @@ colsets = {
     
         }
 
-# create disct for all colours
+# create dict for all colours
 all_col = {k: v for d in (colmaps, colsets) for k, v in d.items()}
 
 def colours():
@@ -80,19 +80,21 @@ def rgb_lst_to_hex(lst):
     return col_hex
 
 def get_continuous_cmap(hex_list, float_list=None, name: str = 'my_cmap', plot = False):
-    ''' creates and returns a color map that can be used in heat map figures.
-        If float_list is not provided, colour map graduates linearly between each color in hex_list.
-        If float_list is provided, each color in hex_list is mapped to the respective location in float_list. 
-        https://towardsdatascience.com/beautiful-custom-colormaps-with-matplotlib-5bab3d1f0e72
-        
-        Parameters
-        ----------
-        hex_list: list of hex code strings
-        float_list: list of floats between 0 and 1, same length as hex_list. Must start with 0 and end with 1.
-        
-        Returns
-        ----------
-        colour map'''
+    ''' 
+    creates and returns a color map that can be used in heat map figures.
+    If float_list is not provided, colour map graduates linearly between each color in hex_list.
+    If float_list is provided, each color in hex_list is mapped to the respective location in float_list. 
+    https://towardsdatascience.com/beautiful-custom-colormaps-with-matplotlib-5bab3d1f0e72
+    
+    Parameters
+    ----------
+    hex_list: list of hex code strings
+    float_list: list of floats between 0 and 1, same length as hex_list. Must start with 0 and end with 1.
+    
+    Returns
+    ----------
+    colour map
+    '''
     rgb_list = [rgb_to_dec(hex_to_rgb(i)) for i in hex_list]
     if float_list:
         pass
@@ -125,19 +127,19 @@ def display_my_maps(continuous = colmaps, discrete = colsets):
         
         for i, hexlist in enumerate(list(continuous.values())):
             ax = axs[i,0]
-            ax.imshow( [list(np.arange(0, 10 , 0.1))], interpolation='nearest', origin='lower',
+            ax.imshow([list(np.arange(0, 10 , 0.1))], interpolation='nearest', origin='lower',
                       cmap = get_continuous_cmap(hexlist), aspect = 'auto')
             ax.set(title = list(continuous.keys())[i])
         
         
         for i, hexlist in enumerate(list(discrete.values())):
             ax = axs[i,1]
-            ax.imshow( [list(np.arange(0, 10, 10/len(hexlist)))], interpolation='nearest', origin='lower',
+            ax.imshow([list(np.arange(0, 10, 10/len(hexlist)))], interpolation='nearest', origin='lower',
                       cmap = get_continuous_cmap(hexlist), aspect = 'auto')
             ax.set(title = list(discrete.keys())[i])
             
         for ax in axs.ravel():
-                ax.axis('off')
+            ax.axis('off')
         plt.show()
 
 def register_cmaps(cmap_dict: dict = None):
@@ -149,7 +151,7 @@ def register_cmaps(cmap_dict: dict = None):
 
     arguments:
         cmap_dict (dict): {name:color list} pairs defining colormaps. Default 'None'
-                          loads all of my maps.
+                           loads all of my maps.
     returns:
         set of cmap keys registered.
     """
@@ -160,150 +162,145 @@ def register_cmaps(cmap_dict: dict = None):
     for name, colorlist in cmaps.items():
         cmap = mcolors.LinearSegmentedColormap.from_list(name, colorlist)
         mcm.register_cmap(name, cmap)
-
         rname = name + '_r'
         cmap = mcolors.LinearSegmentedColormap.from_list(rname, list(reversed(colorlist)))
         mcm.register_cmap(rname, cmap)
-
     return set(cmaps.keys())
 
-class HamColor:
-	__slots__ = {'_name', '_cmap', '_discrete_len', '_cycler', '_created_from'}
-	def __init__(self, cmap, length: int = 8):
-		self._name = cmap.name
-		self._cmap = cmap
-		self._discrete_len = length
-		self._cycler = mpl.cycler(color = cmap(np.linspace(0, 1, length)))
-		if type(self._created_from) == type(None):
-			self._created_from = 'mpl.Colormap'
-		
-	def __str__(self):
-		return f"{self._name} from {self._discrete_len} colors: {', '.join(self.get_hexlist())}"
-	
-	def __repr__(self):
-		return (
-			f"{type(self)__name__}"
-			f"(name='{self._name}', "
-			f"length='{self._discrete_len}', "
-			f"from '{self._created_from}:' "
-			f"'{self.get_hexlist()}')"
-			)
-	def __call__(self, number):
-		if number < 0:
-			number = 0
-			print("Value Error: Plase chose float between [0, 1], set to 0.")
-		elif number > 1:
-			number = 1
-			print("Value Error: Plase chose float between [0, 1], set to 1.")
-		return self._cmap(number)
-	
-	def __next__(self):
-		return self._cycler
-	
-	def __iter__(self):
-		return self._cycler
-	
-	def __len__(self):
-		return self._discrete_len
-	
-	def __getitem__(self, key):
-		return self.get_hexlist()[key]
-	
-	def __eq__(self, other):
-		a = type(self) == type(other)
-		b = repr(self) == repr(other)
-		return a & b
-	
-	def __neg__(self):
-		# reverse the order!
-		reversedMap = HamMap(self._cmap.reversed(), self._discrete_len)
-		reversedMap._name = self._name + '_r'
-		return reversedMap
-	
-	def __pos__(self):
-		return self
-	
-	def __reversed__(self):
-		return -self
-	
-	def __iadd__(self, other):
-		# will stack colormaps
-		name_tot = self._name + '+' + other._name
-		hexlist_tot = self.get_hexlist() + other.get_hexlist()
-		# bad practice, creates a new class instance
-		return HamColor.from_hex(name_tot, hexlist_tot)
-	
-	
-	
-	@classmethod
-	def from_name(cls, name, length: int = 8):
-		# Check custom defined 
-		if name in list(all_col.keys())
-			hexlist = all_col[name]
-			cmap = get_continuous_cmap(hexlist, name = name)
-			tmp_cls = cls(cmap, length = len(hexlist))
-			tmp_cls._created_from = 'named hexidecimal list'
-			return tmp_cls
-		elif name in list(mpl.colormaps):
-			tmp_cls = cls(cmap, length = length)
-			tmp_cls._created_from = 'named mpl.Colormap'
-			return tmp_cls
-		else:
-			# This name does not exist in my definitions or matplotlibs!
-			print("Argument Error: Chosen name does not exist in the custom set of colormaps or matplotlib.")
-			hexlist = ['#FFFFFF']
-			cmap = get_continuous_cmap(hexlist, name = name)
-			return cls(cmap, 1)
-	
-	@classmethod
-	def from_hex(cls, name: str, hexlist: list):
-		cmap = get_continuous_cmap(hexlist, name = name)
-		tmp_cls = cls(cmap, len(hexlist))
-		tmp_cls._created_from = 'custom hexidecimal list'
-		return tmp_cls
-	
-	@classmethod
-	def from_hex_gradient(cls, name: str, hexlist: list, locations: list):
-		if max := max(locations) > 1:
-			locations = np.array(locations)/max
-		cmap = get_continuous_cmap(hexlist, name = name, float_list = locations)
-		tmp_cls = cls(cmap, length = len(hexlist))
-		tmp_cls._created_from = 'custom hexidecimal list'
-		return tmp_cls
-	
-	@property
-	def name(self):
-		return self._name
-	
-	@property
-	def cmap(self):
-		return self._cmap
-	
-	@property
-	def length(self):
-		return self._discrete_len
-	
-	@property
-	def cycler(self):
-		return self._cycler
-	
-	@_discrete_len.setter
-	def length(self, N):
-		self._discrete_len = N
-		self._cycler = mpl.cycler(color = self._cmap(np.linspace(0, 1, N)))
-	
-	def _color_list(self, N: int = None):
-		if type(N) == type(None):
-			N = self._discrete_len
-		return = self._cmap(np.linspace(0, 1, N, endpoint = True))
-		
-	def get_rgbalist(self, N: int = None):
-		return self._color_list(N)
-	
-	def get_hexlist(self, N: int = None):
-		rgba = self._color_list(N)
-		hex = [mcolors.rgb2hex(_, keep_alpha = True) for _ in rgba]
-		return hex
+class HamColour:
+    __slots__ = {'_name', '_cmap', '_length', '_cycler', '_created_from'}
+    def __init__(self, cmap, length: int = 8):
+        self._name = cmap.name
+        self._cmap = cmap
+        self._length = length
+        self._cycler = mpl.cycler(color = cmap(np.linspace(0, 1, length)))
+        self._created_from = 'mpl.Colormap'
+        
+    def __str__(self):
+        return f"{self._name} from {self._length} colors: {', '.join(self.get_hexlist())}"
+    
+    def __repr__(self):
+        return (f"{type(self)} {self.__name__}"
+                f"(name='{self._name}', "
+                f"length='{self._length}', "
+                f"from '{self._created_from}:' "
+                f"'{self.get_hexlist()}')"
+                )
+
+    def __call__(self, number):
+        if number < 0:
+            number = 0
+            print("Value Error: Please chose float between [0, 1], set to 0.")
+        elif number > 1:
+            number = 1
+            print("Value Error: Please chose float between [0, 1], set to 1.")
+        return self._cmap(number)
+    
+    def __next__(self):
+        return self._cycler
+    
+    def __iter__(self):
+        return self._cycler
+    
+    def __len__(self):
+        return self._length
+    
+    def __getitem__(self, key):
+        return self.get_hexlist()[key]
+    
+    def __eq__(self, other):
+        a = type(self) == type(other)
+        b = repr(self) == repr(other)
+        return a & b
+    
+    def __neg__(self):
+        # reverse the order!
+        reversedMap = HamMap(self._cmap.reversed(), self._length)
+        reversedMap._name = self._name + '_r'
+        return reversedMap
+    
+    def __pos__(self):
+        return self
+    
+    def __reversed__(self):
+        return -self
+    
+    def __iadd__(self, other):
+        # will stack colormaps
+        name_tot = self._name + '+' + other._name
+        hexlist_tot = self.get_hexlist() + other.get_hexlist()
+        # bad practice, creates a new class instance
+        return HamColour.from_hex(name_tot, hexlist_tot)
+    
+    @classmethod
+    def from_name(cls, name, length: int = 8):
+        # Check custom defined 
+        if name in list(all_col.keys()):
+            hexlist = all_col[name]
+            cmap = get_continuous_cmap(hexlist, name = name)
+            tmp_cls = cls(cmap, length = len(hexlist))
+            tmp_cls._created_from = 'named hexidecimal list'
+            return tmp_cls
+        elif name in list(mpl.colormaps):
+            tmp_cls = cls(cmap, length = length)
+            tmp_cls._created_from = 'named mpl.Colormap'
+            return tmp_cls
+        else:
+            # This name does not exist in my definitions or matplotlib's!
+            print("Argument Error: Chosen name does not exist in the custom set of colormaps or matplotlib.")
+            hexlist = ['#FFFFFF']
+            cmap = get_continuous_cmap(hexlist, name = name)
+            return cls(cmap, 1)
+    
+    @classmethod
+    def from_hex(cls, name: str, hexlist: list):
+        cmap = get_continuous_cmap(hexlist, name = name)
+        tmp_cls = cls(cmap, len(hexlist))
+        tmp_cls._created_from = 'custom hexidecimal list'
+        return tmp_cls
+    
+    @classmethod
+    def from_hex_gradient(cls, name: str, hexlist: list, locations: list):
+        if max := max(locations) > 1:
+            locations = np.array(locations)/max
+        cmap = get_continuous_cmap(hexlist, name = name, float_list = locations)
+        tmp_cls = cls(cmap, length = len(hexlist))
+        tmp_cls._created_from = 'custom hexidecimal list'
+        return tmp_cls
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def cmap(self):
+        return self._cmap
+    
+    @property
+    def length(self):
+        return self._length
+    
+    @property
+    def cycler(self):
+        return self._cycler
+    
+    @length.setter
+    def length(self, N):
+        self._length = N
+        self._cycler = mpl.cycler(color = self._cmap(np.linspace(0, 1, N)))
+    
+    def _color_list(self, N: int = None):
+        if type(N) == type(None):
+            N = self._length
+        return self._cmap(np.linspace(0, 1, N, endpoint = True))
+        
+    def get_rgbalist(self, N: int = None):
+        return self._color_list(N)
+    
+    def get_hexlist(self, N: int = None):
+        rgba = self._color_list(N)
+        hexList = [mcolors.rgb2hex(_, keep_alpha = True) for _ in rgba]
+        return hexList
 
     def test(self, N = None, mapBool = False, savePath = None):
         """Test function to generate a serries of common plots in one figure.
@@ -314,12 +311,14 @@ class HamColor:
             savePath (str, optional): Path to save figure. Defaults to None meaning do not save.
         """
         if N is None:
-            N = self.discrete_len
+            N = self._length
+            N_bar = 256
+        else:
             N_bar = N
-        assert_error(N > 0, ValueError("Argument 'N' must be a positive intiger or 'None' type."))  # noqa: F631
-        N_bar = N
+        assert_error(N > 0, ValueError("Argument 'N' must be a positive integer or 'None' type."))  # noqa: F631
 
-        # x, y for lineplot
+
+        # x, y for line plot
         t = 10
         f = 0.5
         spacing = 1
@@ -346,7 +345,7 @@ class HamColor:
         
         # PLOT BAR %-------------------------------------------------------------------%
         ax_bar.imshow( [list(np.arange(0, 1 , 1/N_bar))]*5, interpolation='nearest', origin='lower',
-                          cmap = self.cmap, aspect = 'auto')
+                            cmap = self.cmap, aspect = 'auto')
         ax_bar.set_title(self.name, size = 17, pad = 8 )
         
         # PLOT LINES & COLORS %--------------------------------------------------------%
@@ -356,6 +355,7 @@ class HamColor:
         markers = ['.','o','s','^','*','D','$f$','p','o']  # markers to show
         flstl = ['full']*(len(markers)-1) + ['none']  # repeat markers for each color
         widths.reverse()
+
         for i in range(N):
             # For each color in the cmap we want to plot
             for _, thicc in enumerate(widths):  # do increasing thickness
@@ -424,8 +424,9 @@ class HamColor:
         else:
             import os
             pathLoc = os.path.dirname(os.path.realpath(__file__)) + savePath + '\\hamMap_'+self.name+'.png'
-            plt.savefig(pathLoc,dpi = 300)
+            plt.savefig(pathLoc, dpi = 300)
             plt.show()
+        return None
     
     def truncate(self, start = 0, stop = 1, subsample = 256, update = True):
         """Create a new colormap from a reduced range of an existing map.
@@ -446,7 +447,7 @@ class HamColor:
             self._name = new_name
             self._cmap = new_cmap
         else:
-            return HamColor(new_cmap, length = self._discrete_len)
+            return HamColour(new_cmap, length = self._length)
 
     def example_map(self, ax, N: int = None, shape_file = '\lpr_000b16a_e'):
         """Generate example map from a map of canada on a given matplotlib axis colored in N colors.
@@ -457,17 +458,17 @@ class HamColor:
             shape_file (str, optional): Shape file name in '\map_files' subfolder to define map. Defaults to '\lpr_000b16a_e'.
 
         Returns:
-            Basemap: Basemap opject describing the map plotted.
+            Basemap: Basemap object describing the map plotted.
         """
         # mapping imports
         try:
-      		from mpl_toolkits.basemap import Basemap
-	        from matplotlib.patches import Polygon
-	        from matplotlib.collections import PatchCollection
-		except exception as E:
-			print("Error importing Basemap, Polygon, or PatchCollection from matplotlib!")
-			print(E)
-			return 0 
+            from mpl_toolkits.basemap import Basemap
+            from matplotlib.patches import Polygon
+            from matplotlib.collections import PatchCollection
+        except exception as E:
+            print("Error importing Basemap, Polygon, or PatchCollection from matplotlib!")
+            print(E)
+            return 0 
         import os
 
         if N is None:
@@ -500,8 +501,11 @@ class HamColor:
 
 def makeAllTests(cont = colmaps, disc = colsets, fileOutPath = '\\colour_demos', mapBool = 0):
     for key in cont:
-        colo = HamColor(key,cont[key])
-        colo.test(N = -8, mapBool = mapBool, savePath = fileOutPath)
+        colo = HamColour.from_hex(key,cont[key])
+        colo.test(mapBool = mapBool, savePath = fileOutPath)
     for key in disc:
-        colo = HamColor(key,disc[key])
-        colo.test(N = colo.init_len, mapBool = mapBool, savePath = fileOutPath)
+        colo = HamColour.from_hex(key,disc[key])
+        colo.test(N = colo.length, mapBool = mapBool, savePath = fileOutPath)
+
+
+makeAllTests()

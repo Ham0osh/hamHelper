@@ -7,7 +7,7 @@ Created on Sat Aug 20 2023
 Contributions 'borrowed' from:
  - 
 """
-from hamhelper.errors import assert_error
+from errors import assert_error
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as mcm

@@ -7,10 +7,11 @@ colors/hamMap*.png
 .spyproject/
 .pylint.d
 __pycache__
-
+.venv
 # Python
 __pycache__/
 .DS_Store
+hamhelper/__pycache__/
 
 # Testing
 .pytest_cache/

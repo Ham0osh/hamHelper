@@ -8,8 +8,8 @@ Created on Thu Jan 12 11:49:54 2023
 Contributions 'borrowed' from:
  - wackywendell/mutedplots: https://github.com/wackywendell/mutedplots/blob/master/mutedcolors.py
 """
-from errors import assert_error
-from plotting import despine
+from hamhelper.errors import assert_error
+from hamhelepr.plotting import despine
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as mcm

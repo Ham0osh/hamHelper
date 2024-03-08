@@ -11,11 +11,7 @@ This repository contains the HamHelper package written in Python3 for scientific
 In order to use this package you will need to have installed:  
  - Python3.XX,  
  - matplotlib,  
- - numpy,  
- - scipi
- 
- To make use of the map plotting helpers you need as well:  
-  - mpl_toolkits.basemap
+ - numpy.  
  
 Install as you normally would with pip: `pip install hamhelper`
 
@@ -24,7 +20,7 @@ Install as you normally would with pip: `pip install hamhelper`
 ```
 HamHelper.    # package root
 |- plotting   # plotting helpers
-|- colours    # colourmap definitions, helper functions, and custom colour class HamColor 
+|- colours    # colourmap definitions, helper functions, and custom colour class HamColour 
 ```
 
 ---
@@ -47,7 +43,7 @@ despine(axis = None, trim = False, drop = 0, noLine = False, bottom = True, left
 > **noLine: bool** (opt.)  
 >     If true removes the spine but keeps the axis ticks, default False.  
 > **bottom, left, top, right: bool** (opt.)  
->     Enable or dissable the corresponding axes spine, default keeps bottom and left, removes top and right.  
+>     Enable or disable the corresponding axes spine, default keeps bottom and left, removes top and right.  
 
 
 **hamhelper.plotting.errorbands()**  

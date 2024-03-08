@@ -17,8 +17,10 @@ hamhelper/__pycache__/
 .pytest_cache/
 .coverage
 .egg-info
+*.egg-info
 
 # Distribution
 dist/
 pyproject.toml
 uploading.txt
+build/

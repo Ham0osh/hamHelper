@@ -47,7 +47,7 @@ despine(axis = None, trim = False, drop = 0, noLine = False, bottom = True, left
 
 
 **hamhelper.plotting.errorbands()**  
-Wrapper of matplotlib.pyplot.errorbar producing continuous bands instead of stems. You can additionaly enable the caps still.  
+Wrapper of matplotlib.pyplot.errorbar producing continuous bands instead of stems. You can additionally enable the caps still.  
 ```
 errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):  
 ```
@@ -58,7 +58,7 @@ errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):
 > **yerr: np.array like**  
 >     The error in the y dimension of pairwise data.  
 > **capsize: float** (opt.)  
->     The width of caps to be added above each datapoint at the same location as the error band.  
+>     The width of caps to be added above each data point at the same location as the error band.  
 > **ax: None or plt.axes object** (opt.)  
 >     Can specify to plot on another axis, defaults to plt.gca()  
 > **color: tuple or string** (opt.)  

@@ -26,12 +26,13 @@ extra_dev = [
 setup(
     name='hamhelper',
     version=__version__,
-    description='Some helpful tools I use in research and fun. Primarily targeted to data visualization and pretty colours.',
+    description='Some helpful tools I use in research and fun. Primarily\
+                 targeted to data visualization and pretty colours.',
 
     url='https://github.com/Ham0osh/hamHelper',
     author='Hamish Johnson',
     author_email='hamish_johnson@sfu.ca',
-    
+
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
 

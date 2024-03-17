@@ -11,5 +11,9 @@
         "testc",
         "whitesmoke",
         "xtmp"
-    ]
+    ],
+    "flake8.args": [
+     "--max-line-length", "120",
+     "--extend-ignore", "E203"
+    ],
 }

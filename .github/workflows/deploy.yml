@@ -6,15 +6,19 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Publish 🐍 distribution 📦 to PyPI and TestPyPI
+name: Build, test, publish 📦 to PyPI and TestPyPI
 
 on:
   push:
-    branches: [ main ]
 
 jobs:
+  flake8lint:
+    uses: hamHelper/.github/workflows/lint_flake8.yml@main
+
   build:
     name: Build distribution 📦
+    needs:
+    - flake8lint
     runs-on: ubuntu-latest
 
     steps:

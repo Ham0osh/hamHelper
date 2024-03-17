@@ -38,6 +38,13 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+
+  run-coverage:
+    name: Run coverage report
+    needs:
+    - build
+    uses: Ham0osh/hamHelper/.github/workflows/coverage.yml@main
+    
   
   publish-to-pypi:
     name: >-

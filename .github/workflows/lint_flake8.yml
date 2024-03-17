@@ -1,7 +1,6 @@
 name: Pylint
 
 on:
-  push:
   workflow_call:
 
 jobs:

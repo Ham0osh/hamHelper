@@ -31,6 +31,9 @@ setup(
     url='https://github.com/Ham0osh/hamHelper',
     author='Hamish Johnson',
     author_email='hamish_johnson@sfu.ca',
+    
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
 
     packages=find_packages(exclude=['tests', 'tests.*']),
 

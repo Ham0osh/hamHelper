@@ -1,4 +1,4 @@
-__version__ = '1.12'  # CI implemented
+__version__ = '1.12'  # CI implemented with linting
 
 
 def hello_world():

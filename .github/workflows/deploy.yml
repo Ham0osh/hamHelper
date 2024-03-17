@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Build, test, publish 📦 to PyPI and TestPyPI
+name: flake8, pytest, & build
 
 on:
   push:

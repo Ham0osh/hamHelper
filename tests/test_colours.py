@@ -1,1 +1,1 @@
-"""Unit testing for colours modeule."""
+"""Unit testing for colours module."""

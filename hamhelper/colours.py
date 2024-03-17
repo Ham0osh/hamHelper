@@ -119,7 +119,7 @@ def get_continuous_cmap(hex_list, float_list=None, name: str = 'my_cmap', plot=F
 
 
 def display_my_maps(continuous=colmaps, discrete=colsets):
-    """Create a test plot for all gives colourmaps and colour sets"""
+    """Create a test plot for all gives colour maps and colour sets"""
     n = len(continuous)
     m = len(discrete)
     j = np.max([m, n])

@@ -12,13 +12,13 @@ on:
   push:
 
 jobs:
-  flake8lint:
-    uses: Ham0osh/hamHelper/.github/workflows/lint_flake8.yml@main
+  lint-test:
+    uses: Ham0osh/hamHelper/.github/workflows/flake8_pytest.yml@main
 
   build:
     name: Build distribution 📦
     needs:
-    - flake8lint
+    - lint-test
     runs-on: ubuntu-latest
 
     steps:

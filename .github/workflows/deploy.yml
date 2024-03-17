@@ -15,10 +15,16 @@ jobs:
   lint-test:
     uses: Ham0osh/hamHelper/.github/workflows/flake8_pytest.yml@main
 
+  run-coverage:
+    name: Run coverage report
+    needs:
+    - lint-test
+    uses: Ham0osh/hamHelper/.github/workflows/coverage.yml@main
+    
   build:
     name: Build distribution 📦
     needs:
-    - lint-test
+    - run-coverage
     runs-on: ubuntu-latest
 
     steps:
@@ -38,14 +44,8 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
-
-  run-coverage:
-    name: Run coverage report
-    needs:
-    - build
-    uses: Ham0osh/hamHelper/.github/workflows/coverage.yml@main
     
-  
+
   publish-to-pypi:
     name: >-
       Publish to PyPI

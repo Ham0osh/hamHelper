@@ -1,4 +1,4 @@
-__version__ = '1.12'
+__version__ = '1.12'  # CI implemented
 
 
 def hello_world():

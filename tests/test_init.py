@@ -1,5 +1,6 @@
 """Test cases for main init"""
-from hemhelper import hello_world
+from hamhelper import hello_world
+
 
 def test_hello_world(capsys):
     """Test hello world function"""

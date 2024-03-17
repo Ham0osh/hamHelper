@@ -17,14 +17,13 @@ jobs:
 
   run-coverage:
     name: Run coverage report
-    needs:
-    - lint-test
     uses: Ham0osh/hamHelper/.github/workflows/coverage.yml@main
     
   build:
     name: Build distribution 📦
     needs:
     - run-coverage
+    - lint-test
     runs-on: ubuntu-latest
 
     steps:

@@ -9,6 +9,8 @@ Contributions 'borrowed' from:
  - wackywendell/mutedplots:
    https://github.com/wackywendell/mutedplots/blob/master/mutedcolors.py
 """
+import sys
+sys.path.append(r'D:\portfolio\hamHelper')
 from hamhelper.errors import assert_error
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -16,6 +18,7 @@ import matplotlib.cm as mcm
 import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
 import numpy as np
+
 
 # continuous
 colmaps = {
@@ -178,7 +181,12 @@ class HamColour:
         self._name = cmap.name
         self._cmap = cmap
         self._length = length
-        self._cycler = mpl.cycler(color=cmap(np.linspace(0, 1, length)))
+        print('ii', np.linspace(0, 1, length), length)
+        if length > 1:
+            self._cycler = mpl.cycler(color=cmap(np.linspace(0, 1, length)))
+        else:
+            print(cmap)
+            self._cycler = mpl.cycler(color=cmap([0., 1]))
         self._created_from = 'mpl.Colormap'
 
     def __str__(self):
@@ -247,6 +255,8 @@ class HamColour:
             tmp_cls._created_from = 'named hexidecimal list'
             return tmp_cls
         elif name in list(mpl.colormaps):
+            print(name)
+            cmap = mpl.colormaps[name]
             tmp_cls = cls(cmap, length=length)
             tmp_cls._created_from = 'named mpl.Colormap'
             return tmp_cls

@@ -9,8 +9,6 @@ Contributions 'borrowed' from:
  - wackywendell/mutedplots:
    https://github.com/wackywendell/mutedplots/blob/master/mutedcolors.py
 """
-import sys
-sys.path.append(r'D:\portfolio\hamHelper')
 from hamhelper.errors import assert_error
 import matplotlib as mpl
 import matplotlib.pyplot as plt

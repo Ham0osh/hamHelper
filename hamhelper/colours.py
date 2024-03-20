@@ -179,11 +179,10 @@ class HamColour:
         self._name = cmap.name
         self._cmap = cmap
         self._length = length
-        print('ii', np.linspace(0, 1, length), length)
         if length > 1:
             self._cycler = mpl.cycler(color=cmap(np.linspace(0, 1, length)))
         else:
-            print(cmap)
+            # error here TODO
             self._cycler = mpl.cycler(color=cmap([0., 1]))
         self._created_from = 'mpl.Colormap'
 
@@ -253,7 +252,6 @@ class HamColour:
             tmp_cls._created_from = 'named hexidecimal list'
             return tmp_cls
         elif name in list(mpl.colormaps):
-            print(name)
             cmap = mpl.colormaps[name]
             tmp_cls = cls(cmap, length=length)
             tmp_cls._created_from = 'named mpl.Colormap'

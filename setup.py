@@ -10,7 +10,7 @@ extra_maps = [
 extra_test = [
     *extra_maps,
     'pytest>=4',
-    'pytest-cov>=2',
+    'coverage',
 ]
 
 extra_ci = [

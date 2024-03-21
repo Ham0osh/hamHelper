@@ -95,5 +95,3 @@ def test_rgb2hexlist(capsys):
 # Empty colorlist
 
 # Nonexistent name
-
-# 

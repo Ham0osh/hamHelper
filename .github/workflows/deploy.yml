@@ -6,15 +6,24 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Publish 🐍 distribution 📦 to PyPI and TestPyPI
+name: flake8, pytest, & build
 
 on:
   push:
-    branches: [ main ]
 
 jobs:
+  lint-test:
+    uses: Ham0osh/hamHelper/.github/workflows/flake8_pytest.yml@main
+
+  run-coverage:
+    name: Run coverage report
+    uses: Ham0osh/hamHelper/.github/workflows/coverage.yml@main
+    
   build:
     name: Build distribution 📦
+    needs:
+    - run-coverage
+    - lint-test
     runs-on: ubuntu-latest
 
     steps:
@@ -34,11 +43,12 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
-  
+    
+
   publish-to-pypi:
     name: >-
       Publish to PyPI
-    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
+    if: startsWith(github.ref, 'refs/tags/pypi')  # only publish to PyPI on tag pushes
     needs:
     - build
     runs-on: ubuntu-latest
@@ -57,7 +67,9 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
   
   publish-to-testpypi:
-    name: Publish to TestPyPI
+    name: >-
+      Publish to TestPyPI
+    if: startsWith(github.ref, 'refs/tags/testpypi')  # only publish to TestPyPI on tag pushes
     needs:
     - build
     runs-on: ubuntu-latest

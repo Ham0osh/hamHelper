@@ -3,6 +3,7 @@
 colors/hamMap*.png
 
 # IDE
+.vscode
 .spyproject
 .spyproject/
 .pylint.d

@@ -1,5 +1,5 @@
 """
-My custom plotting helpeer functions for day to day!
+My custom plotting helper functions for day to day!
 Created on Sat Aug 20 2023
 
 @author: hamishj

@@ -17,6 +17,7 @@ import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
 import numpy as np
 
+
 # continuous
 colmaps = {
         'ptol_sunset':      ['#364B9A', '#4A7BB7', '#6EA6CD', '#98CAE1', '#C2E4EF', '#EAECCC', '#FEDA8B', '#FDB366',
@@ -119,7 +120,7 @@ def get_continuous_cmap(hex_list, float_list=None, name: str = 'my_cmap', plot=F
 
 
 def display_my_maps(continuous=colmaps, discrete=colsets):
-    """Create a test plot for all gives colourmaps and colour sets"""
+    """Create a test plot for all gives colour maps and colour sets"""
     n = len(continuous)
     m = len(discrete)
     j = np.max([m, n])
@@ -178,7 +179,11 @@ class HamColour:
         self._name = cmap.name
         self._cmap = cmap
         self._length = length
-        self._cycler = mpl.cycler(color=cmap(np.linspace(0, 1, length)))
+        if length > 1:
+            self._cycler = mpl.cycler(color=cmap(np.linspace(0, 1, length)))
+        else:
+            # error here TODO
+            self._cycler = mpl.cycler(color=cmap([0., 1]))
         self._created_from = 'mpl.Colormap'
 
     def __str__(self):
@@ -247,6 +252,7 @@ class HamColour:
             tmp_cls._created_from = 'named hexidecimal list'
             return tmp_cls
         elif name in list(mpl.colormaps):
+            cmap = mpl.colormaps[name]
             tmp_cls = cls(cmap, length=length)
             tmp_cls._created_from = 'named mpl.Colormap'
             return tmp_cls

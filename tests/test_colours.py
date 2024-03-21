@@ -10,7 +10,7 @@ def validateHex(hexkey: str):
     lengthVal = len(hexkey) == 7
     hashVal = hexkey[0] == '#'
     charVal = hexkey[1:].asalnum()
-    return np.conditional_and(lengVal, hashVal, charVal)
+    return np.conditional_and(lengthVal, hashVal, charVal)
     
 
 def test_named_hex_lists(capsys):
@@ -27,6 +27,7 @@ def test_named_hex_lists(capsys):
         names = list(colours.keys())
         assert len(names) == len(set(names)), f'There are duplicate named colour sets/maps in this library.'
         
+    captured = capsys.readouterr()
     assert captured.out == ''
     assert captured.err == '', f'Error encountered when testing named hexlists.'
     
@@ -39,6 +40,7 @@ def test_hex2rgb(capsys):
     for hexi, rgb in zip(knownHex, knownRGB):
         assert list(rgb) == hc.hex_to_rgb(hexi), f'Hex value {hexi} does not match RGB value {rgb}.'
   
+    captured = capsys.readouterr()
     assert captured.out == ''
     assert captured.err == '', f'Error encountered when testing colours.hex_to_rgb().'
 
@@ -52,6 +54,7 @@ def test_rgb2dec(capsys):
     for rgb, dec in zip(knownRGB, knownDec):
         assert np.sum(np.array(dec) - np.array(hc.rgb_to_dec(list(rgb)))) <= tolerance, f'RGB value {rgb} does not match expected dec value witin {tolerance:.2e}.' 
     
+    captured = capsys.readouterr()
     assert captured.out == ''
     assert captured.err == '', f'Error encountered when testing colours.rgb_to_dec().'
  
@@ -62,6 +65,7 @@ def test_rgb2hexlist(capsys):
     
     assert knownHex == hc.rgb_to_hexlist(knownRGB), f'RGB values do not match expected hex values.'
    
+    captured = capsys.readouterr()
     assert captured.out == ''
     assert captured.err == '', f'Error encountered when testing colours.rgb_to_hexlist().'
 

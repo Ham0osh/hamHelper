@@ -2,7 +2,7 @@
 
 # %------------------- Helper Tests -------------------%
 # Test that all entries in colorlists contain valid hex values
-import hemhelper.colours as hc
+import hamhelper.colours as hc
 import numpy as np
 
 @np.vectorize

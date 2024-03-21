@@ -18,7 +18,7 @@ def test_named_hex_lists(capsys):
     """Test the lists of named colormap and named color lists"""
 
     for colours in [hc.colmaps, hc.colsets]:
-        for name, hex_list in colours:
+        for name, hex_list in colours.items():
             # Check all hex keys are valid
             for _ in hex_list:
                 hexValidation = validateHex(np.array(hex_list))
@@ -37,9 +37,11 @@ def test_hex2rgb(capsys):
     """Test the proper hex to rgb conversion assuming Adobe colour space"""
     knownHex = ['#FFFFFF', '#000000', '#4C9900', '#9933FF', '#FFB266']
     knownRGB = [(255, 255, 255), (0, 0, 0), (76, 153, 0), (153, 51, 255), (255, 178, 102)]
+    tolerance = 1e-8  # Because division can be silly
 
     for hex_value, rgb in zip(knownHex, knownRGB):
-        assert list(rgb) == hc.hex_to_rgb(hex_value), f'Hex value {hex_value} does not match RGB value {rgb}.'
+        errMessage = f'Hex value {hex_value} does not match RGB value {rgb}.'
+        assert np.sum(np.array(rgb) - hc.hex_to_rgb(hex_value)) <= tolerance, errMessage
 
     captured = capsys.readouterr()
     assert captured.out == ''
@@ -65,7 +67,7 @@ def test_rgb2hexlist(capsys):
     knownHex = ['#FFFFFF', '#000000', '#4C9900', '#9933FF', '#FFB266']
     knownRGB = [(255, 255, 255), (0, 0, 0), (76, 153, 0), (153, 51, 255), (255, 178, 102)]
 
-    assert knownHex == hc.rgb_to_hexlist(knownRGB), 'RGB values do not match expected hex values.'
+    assert knownHex == hc.rgb_lst_to_hex(knownRGB), 'RGB values do not match expected hex values.'
 
     captured = capsys.readouterr()
     assert captured.out == ''

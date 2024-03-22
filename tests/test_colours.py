@@ -11,7 +11,7 @@ def validateHex(hex_key: str):
     lengthVal = len(hex_key) == 7
     hashVal = hex_key[0] == '#'
     charVal = hex_key[1:].isalnum()
-    return np.conditional_and(lengthVal, hashVal, charVal)
+    return np.logical_and(lengthVal, hashVal, charVal)
 
 
 def test_named_hex_lists(capsys):

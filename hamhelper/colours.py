@@ -75,11 +75,19 @@ def rgb_to_dec(value):
     Converts rgb to decimal colours (i.e. divides each value by 256)
     value: list (length 3) of RGB values
     Returns: list (length 3) of decimal values'''
-    return [v/256 for v in value]
+    return [v/255 for v in value]
 
 
-def rgb_lst_to_hex(lst):
-    col_hex = [mcolors.to_hex(_) for _ in lst]
+def rgb_list_to_hex(rgb_list):
+    """Convert list of RGB colours to hexidecimal strings.
+
+    Args:
+        rgb_list (list): List of RGB tuples.
+
+    Returns:
+        list: List of hexidecimal colour strings.
+    """
+    col_hex = [mcolors.to_hex(rgb_to_dec(_)) for _ in rgb_list]
     return col_hex
 
 

@@ -10,7 +10,7 @@ import numpy as np
 def validateHex(hex_key: str):
     lengthVal = len(hex_key) == 7
     hashVal = hex_key[0] == '#'
-    charVal = hex_key[1:].asalnum()
+    charVal = hex_key[1:].isalnum()
     return np.conditional_and(lengthVal, hashVal, charVal)
 
 
@@ -67,7 +67,9 @@ def test_rgb2hexlist(capsys):
     knownHex = ['#FFFFFF', '#000000', '#4C9900', '#9933FF', '#FFB266']
     knownRGB = [(255, 255, 255), (0, 0, 0), (76, 153, 0), (153, 51, 255), (255, 178, 102)]
 
-    assert knownHex == hc.rgb_lst_to_hex(knownRGB), 'RGB values do not match expected hex values.'
+    testHex = hc.rgb_lst_to_hex(knownRGB)
+    for test, reference in zip(testHex, knownHex):
+        assert test == reference, f'RGB values do not match expected hex values. Yields {test} instead of {reference}'
 
     captured = capsys.readouterr()
     assert captured.out == ''

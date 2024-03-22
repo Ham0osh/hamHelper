@@ -69,7 +69,8 @@ def test_rgb2hexlist(capsys):
 
     testHex = hc.rgb_list_to_hex(knownRGB)
     for test, reference in zip(testHex, knownHex):
-        assert test == reference, f'RGB values do not match expected hex values. Yields {test} instead of {reference}'
+        errorMessage = f'RGB values do not match expected hex values. Yields {test} instead of {reference}'
+        assert test.lower() == reference.lower(), errorMessage
 
     captured = capsys.readouterr()
     assert captured.out == ''

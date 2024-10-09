@@ -10,7 +10,8 @@ This repository contains the HamHelper package written in Python3 for scientific
 
 In order to use this package you will need to have installed:  
  - Python3.XX,  
- - matplotlib,  
+ - matplotlib,
+ - scipy,
  - numpy.  
  
 Install as you normally would with pip: `pip install hamhelper`
@@ -67,8 +68,12 @@ errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):
 >     Passed to plt.ax.fill\_between().  
 
 
-**hamhelper.plotting.gtc()**
+**hamhelper.plotting.gtc()**. 
 COMING SOON: Generate a great triangle of confusion from a multi-dimensional pandas dataframe with one column correspponding to the dimension being evaluated (cost, error, counts, likelyhood...)
+```
+gtc( ... ):
+```
+> parameters
 
 ---
 > ### colours

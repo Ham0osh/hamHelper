@@ -68,7 +68,7 @@ errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):
 >     Passed to plt.ax.fill\_between().  
 
 
-**hamhelper.plotting.gtc()**. 
+**hamhelper.plotting.gtc()**  
 COMING SOON: Generate a great triangle of confusion from a multi-dimensional pandas dataframe with one column correspponding to the dimension being evaluated (cost, error, counts, likelyhood...)
 ```
 gtc( ... ):
@@ -76,5 +76,5 @@ gtc( ... ):
 > parameters
 
 ---
-> ### colours
-> A suite of colour sets and colour maps I use with a custom `HamColor` class to easily import and play with the colours. Just stuff I like to use!
+### colours
+A suite of colour sets and colour maps I use with a custom `HamColor` class to easily import and play with the colours. Just stuff I like to use!

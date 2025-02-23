@@ -9,7 +9,7 @@ Contributions 'borrowed' from:
  - wackywendell/mutedplots:
    https://github.com/wackywendell/mutedplots/blob/master/mutedcolors.py
 """
-from hamhelper.errors import assert_error
+from hamhelper.errors import assert_error  # fixed import
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as mcm

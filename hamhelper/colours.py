@@ -109,9 +109,12 @@ def get_continuous_cmap(hex_list, float_list=None, name: str = 'my_cmap', plot=F
     colour map
     '''
     rgb_list = [rgb_to_dec(hex_to_rgb(i)) for i in hex_list]
-    if float_list:
-        pass
-    else:
+    if len(rgb_list) == 1:
+        # A single colour is a constant map. LinearSegmentedColormap needs points at both x=0 and x=1.
+        rgb_list = rgb_list * 2
+        float_list = [0., 1.]
+    elif float_list is None or len(float_list) == 0:
+        # (not `if float_list:`, which raises for a numpy array)
         float_list = list(np.linspace(0, 1, len(rgb_list)))
 
     cdict = dict()
@@ -204,11 +207,11 @@ class HamColour:
         return f"{self._name} from {self._length} colors: {', '.join(self.get_hexlist())}"
 
     def __repr__(self):
-        return (f"{type(self)} {self.__name__}"
+        return (f"{type(self).__name__}"
                 f"(name='{self._name}', "
-                f"length='{self._length}', "
-                f"from '{self._created_from}:' "
-                f"'{self.get_hexlist()}')"
+                f"length={self._length}, "
+                f"created_from='{self._created_from}', "
+                f"colours={self.get_hexlist()})"
                 )
 
     def __call__(self, number):
@@ -224,7 +227,8 @@ class HamColour:
         return self._cycler
 
     def __iter__(self):
-        return self._cycler
+        # iter() must return an iterator; a Cycler is iterable but is not one itself.
+        return iter(self._cycler)
 
     def __len__(self):
         return self._length
@@ -286,8 +290,11 @@ class HamColour:
 
     @classmethod
     def from_hex_gradient(cls, name: str, hexlist: list, locations: list):
-        if max_scale := max(locations) > 1:
-            locations = np.array(locations)/max_scale
+        # (the original `if max_scale := max(locations) > 1` bound max_scale to the comparison's bool, so
+        # locations were divided by True, i.e. never rescaled)
+        max_scale = max(locations)
+        if max_scale > 1:
+            locations = np.array(locations) / max_scale
         cmap = get_continuous_cmap(hexlist, name=name, float_list=locations)
         tmp_cls = cls(cmap, length=len(hexlist))
         tmp_cls._created_from = 'custom hexidecimal list'
@@ -369,7 +376,7 @@ class HamColour:
 
         # PLOT BAR %-------------------------------------------------------------------%
         ax_bar.imshow([list(np.arange(0, 1 , 1/N_bar))]*5, interpolation='nearest', origin='lower',
-                      map=self.cmap, aspect='auto')
+                      cmap=self.cmap, aspect='auto')
         ax_bar.set_title(self.name, size=17, pad=8)
 
         # PLOT LINES & COLORS %--------------------------------------------------------%
@@ -497,7 +504,7 @@ class HamColour:
         import os
 
         if N is None:
-            N = self.discrete_len
+            N = self._length
         colors = self.cmap(np.linspace(0, 1, N))
 
         try:

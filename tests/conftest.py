@@ -29,6 +29,35 @@
 #   - despine: defaults, trim (spine bounds = outer ticks), drop, noLine
 #   - errorbands: fill spans y -/+ yerr, colour is applied, capsize adds an errorbar container
 #
+# TODO(me): tests to write for the new style system (branch dev-hamstyle: styles/*.mplstyle, install.py)
+#
+# import hygiene
+#   - import hamhelper, hamhelper.plotting, hamhelper.colours, hamhelper.install leaves matplotlib.rcParams unchanged
+#     (compare dict.items(mpl.rcParams) without the 'backend' key, before and after, in a fresh subprocess)
+# style files
+#   - every file in styles/ loads with mpl.rc_params_from_file(path, fail_on_error=True, use_default_template=False)
+#     and logs nothing (caplog) and warns nothing (-W error)
+#   - within each axis the layer files hold the SAME keys (size_*: 25, variant_*: 16, font_*: 2); that is what makes
+#     switching safe, because a stale key from the previous choice can never be left behind
+#   - hamStyle.mplstyle repeats size_one_col, variant_journal and font_serif exactly, and its cycle equals
+#     install._PALETTES['default']
+#   - plt.style.use('hamhelper.styles.hamStyle') gives the same rcParams as hi.style.hamstyle() from rcdefaults
+# install
+#   - order independence: same final choices in any call order (with junk choices made first) -> identical rcParams
+#   - with-block: restores rcParams and hi.current() on exit, on an exception, and when nested
+#   - setters only rewrite the keys their own axis owns (hand edit lines.linewidth, call hi.font.sans(): survives;
+#     call hi.size.slide(): replaced); hi.style.hamstyle() rewrites everything
+#   - font.sans scales font.size, axes.titlesize, axes.labelsize, tick labels and legend.fontsize by 0.92 once
+#     (sans twice == sans once; sans then serif == never sans), whichever of size / font was set last
+#   - redundancy: off -> cycle has only 'color'; dash adds 'linestyle'; marker adds 'marker' and 'markevery'; both
+#     adds all of them
+#   - style-declared defaults (monkeypatch _CHOICES / _STYLE_FILES / _STYLE_DEFAULTS with a fake style): explicit
+#     choices beat them in either call order; switching back to hamstyle drops them
+#   - errors: unknown name / axis raises ValueError and leaves rcParams and hi.current() untouched; a file that fails
+#     to load part-way leaves them untouched too
+#   - hi.reset() restores rcParams exactly as before the first call; hi.reset('size') forgets one choice only
+#   - a figure draws at every size (plt.subplots, legend, savefig to a buffer)
+#
 # Tips: run `python -m pytest -W error` so any deprecation warning fails the test.
 #       "Bad value in file" from an rc/style file is a log message, not a warning: use the caplog fixture.
 #       Test against the old code too (git stash the fix) to check a test really fails without it.

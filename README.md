@@ -20,6 +20,42 @@ The matplotlib style files ship with the package and can be used by name:
 import matplotlib.pyplot as plt
 plt.style.use('hamhelper.styles.hamStyle')
 ```
+`import hamhelper` itself never changes any matplotlib setting; the style only applies when you ask for it.
+
+### Styles
+
+`hamStyle` is a minimal-ink style for physics figures: white substrate, black ink, serif type (Times-class, STIX maths), constrained layout, and a colour cycle built on Paul Tol's Sunset. On its own it gives a single-column (3.37 in) journal figure with a four-sided frame and inward ticks. Small overlay files change one thing at a time and can be stacked after it:
+```
+plt.style.use(['hamhelper.styles.hamStyle', 'hamhelper.styles.size_two_col'])
+```
+ - `size_one_col`, `size_one_col_tall`, `size_two_col`, `size_slide`: figure size, type size, line and tick weights  
+ - `variant_journal` (boxed, ticks in), `variant_comms` (left and bottom spines only, ticks out)  
+ - `font_serif`, `font_sans`
+
+`hamhelper.install` does the stacking for you, remembers your choices and lets you change one at a time in any order:
+```
+import hamhelper.install as hi
+
+hi.style.hamstyle()        # light, serif, one column, journal frame
+hi.size.two_col()          # all later figures are 6.90 in wide
+hi.palette.tol()           # Tol's Vibrant colour cycle instead of the default
+
+with hi.size.one_col():    # a one-off: undone when the block ends
+    fig, ax = plt.subplots()
+
+hi.reset()                 # matplotlib as it was before the first call
+```
+| axis | choices | default |
+|---|---|---|
+| `hi.style` | `hamstyle` | `hamstyle` |
+| `hi.size` | `one_col`, `one_col_tall`, `two_col`, `slide` | `one_col` |
+| `hi.variant` | `journal`, `comms` | `journal` |
+| `hi.font` | `serif`, `sans` | `serif` |
+| `hi.palette` | `default`, `tol` | `default` |
+| `hi.redundancy` | `off`, `dash`, `marker`, `both` | `off` |
+| `hi.grid` | `off`, `on` | `off` |
+
+`hi.apply(size='slide', variant='comms')` sets several at once, `hi.current()` shows what is in force. `redundancy` gives each colour in the cycle its own line style and/or marker, for greyscale prints and colour-blind readers.
 
 ### Submodules
 
@@ -27,6 +63,7 @@ plt.style.use('hamhelper.styles.hamStyle')
 HamHelper.    # package root
 |- plotting   # plotting helpers
 |- colours    # colourmap definitions, helper functions, and custom colour class HamColour 
+|- install    # opt-in matplotlib styles: size, frame, font, colour cycle (see Styles above)
 ```
 
 ---

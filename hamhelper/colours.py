@@ -9,6 +9,7 @@ Contributions 'borrowed' from:
  - wackywendell/mutedplots:
    https://github.com/wackywendell/mutedplots/blob/master/mutedcolors.py
 """
+import os
 import warnings
 
 from hamhelper.errors import assert_error  # fixed import
@@ -189,6 +190,21 @@ def register_cmaps(cmap_dict: dict = None):
     return set(cmap_dict.keys())
 
 
+def _resolve_dir(path: str) -> str:
+    """Resolve an output directory given as a string, on any operating system.
+
+    Relative paths are taken relative to the installed hamhelper package directory, as they always were.
+    The historical Windows spelling with a leading backslash (r'\\colour_demos') still means 'inside the package'.
+    Absolute paths are used as they are, and backslashes in a relative path are accepted on every platform.
+    """
+    path = path.lstrip('\\') if path.startswith('\\') else path
+    if os.sep != '\\':
+        path = path.replace('\\', os.sep)
+    if os.path.isabs(path):
+        return path
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
+
+
 class HamColour:
     __slots__ = {'_name', '_cmap', '_length', '_cycler', '_created_from'}
 
@@ -340,7 +356,8 @@ class HamColour:
         Args:
             N (int, optional): _description_. Defaults to initialize length.
             mapBool (bool, optional): Set to true if Basemap is installed, adds a map to the plot. Defaults to False.
-            savePath (str, optional): Path to save figure. Defaults to None meaning do not save.
+            savePath (str, optional): Directory to save the figure in (as hamMap_<name>.png), relative to the
+                package directory unless absolute. Defaults to None meaning do not save.
         """
         if N is None:
             N = self._length
@@ -453,9 +470,9 @@ class HamColour:
         if savePath is None:
             plt.show()
         else:
-            import os
-            pathLoc = os.path.dirname(os.path.realpath(__file__)) + savePath + '\\hamMap_'+self.name+'.png'
-            plt.savefig(pathLoc, dpi=300)
+            out_dir = _resolve_dir(savePath)
+            os.makedirs(out_dir, exist_ok=True)
+            plt.savefig(os.path.join(out_dir, 'hamMap_' + self.name + '.png'), dpi=300)
             plt.show()
         return None
 
@@ -480,14 +497,14 @@ class HamColour:
         else:
             return HamColour(new_cmap, length=self._length)
 
-    def example_map(self, ax, N: int = None, shape_file: str = r'\lpr_000b16a_e'):
+    def example_map(self, ax, N: int = None, shape_file: str = 'lpr_000b16a_e'):
         r"""Generate example map from a map of canada on a given matplotlib axis colored in N colors.
 
         Args:
             ax (plt.Axes): Axes to plot map on.
             N (int, optional): Number of colors, defaults to initialized length.
-            shape_file (str, optional): Shape file name in '\map_files' subfolder to define map. Defaults to
-                                        '\lpr_000b16a_e'.
+            shape_file (str, optional): Shape file name (no extension) in the 'map_files' subfolder to define
+                                        map. Defaults to 'lpr_000b16a_e'.
 
         Returns:
             Basemap: Basemap object describing the map plotted.
@@ -501,14 +518,13 @@ class HamColour:
             print("ImportError: Basemap, Polygon, or PatchCollection from matplotlib!")
             print(ie)
             return 0
-        import os
 
         if N is None:
             N = self._length
         colors = self.cmap(np.linspace(0, 1, N))
 
         try:
-            shape_file = os.path.dirname(os.path.realpath(__file__)) + r'\map_files' + shape_file
+            shape_file = os.path.join(_resolve_dir('map_files'), shape_file.lstrip('\\/'))
         except Exception as e:
             print('Error finding map file, basemap likely not found...')
             print(e)
@@ -531,7 +547,7 @@ class HamColour:
         return m
 
 
-def makeAllTests(continuousMaps: list = colmaps, discreteMaps: list = colsets, fileOutPath: str = '\\colour_demos',
+def makeAllTests(continuousMaps: list = colmaps, discreteMaps: list = colsets, fileOutPath: str = 'colour_demos',
                  mapBool: bool = False):
     for key in continuousMaps:
         colo = HamColour.from_hex(key, continuousMaps[key])

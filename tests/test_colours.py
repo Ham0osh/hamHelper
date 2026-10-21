@@ -2,6 +2,8 @@
 
 # %------------------- Helper Tests -------------------%
 # Test that all entries in colour lists contain valid hex values
+import os
+
 import hamhelper.colours as hc
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -239,3 +241,32 @@ def test_hamcolour_example_map_without_basemap(capsys):
         pass
     assert hc.HamColour.from_name('ptol_sunset').example_map(plt.figure().gca()) == 0
     assert 'ImportError' in capsys.readouterr().out
+
+
+# %------------------- output paths (used to be Windows only) -------------------%
+def test_resolve_dir():
+    here = os.path.dirname(os.path.realpath(hc.__file__))
+    target = os.path.join(here, 'colour_demos')
+    # the old '\\colour_demos' spelling, and its plain forms, all mean the folder inside the package
+    for spelling in ('colour_demos', '\\colour_demos', 'colour_demos/', 'colour_demos\\'):
+        assert os.path.normpath(hc._resolve_dir(spelling)) == target, spelling
+    assert os.path.normpath(hc._resolve_dir('a\\b')) == os.path.join(here, 'a', 'b')
+
+
+def test_resolve_dir_absolute(tmp_path):
+    assert hc._resolve_dir(str(tmp_path)) == str(tmp_path)
+
+
+def test_hamcolour_test_saves_figure(tmp_path):
+    """savePath was built with hard coded backslashes, which on Linux/macOS produced one oddly named file."""
+    out = tmp_path / 'nested' / 'demos'
+    hc.HamColour.from_name('ptol_sunset').test(savePath=str(out))
+    assert (out / 'hamMap_ptol_sunset.png').is_file()
+    assert [p.name for p in tmp_path.iterdir()] == ['nested']
+
+
+def test_make_all_tests_writes_one_file_per_map(tmp_path):
+    hc.makeAllTests(continuousMaps={'cont_a': ['#000000', '#ffffff']},
+                    discreteMaps={'disc_b': ['#ff0000', '#00ff00', '#0000ff']},
+                    fileOutPath=str(tmp_path))
+    assert sorted(p.name for p in tmp_path.iterdir()) == ['hamMap_cont_a.png', 'hamMap_disc_b.png']

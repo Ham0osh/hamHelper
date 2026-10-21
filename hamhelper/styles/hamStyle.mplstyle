@@ -107,7 +107,7 @@ hatch.color:            000000
 # two-series figure stays apart in greyscale; 3-5 were chosen by max-min search
 # over the Tol pool for greyscale + dichromatic separation; 6-8 are overflow
 # (wine, rose, ochre) so a six-series figure never wraps a colour.
-# The same eight colours are palette "default" in hamhelper.install.
+# The same eight colours are PALETTES['default'] in hamhelper.colours.
 axes.prop_cycle: cycler('color', ['29428F', 'C42E3C', '238F9D', 'F67E4B', '66CCEE', '882255', 'BB5566', '997700'])
 
 # --- Export ------------------------------------------------------------------

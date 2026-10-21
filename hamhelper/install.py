@@ -21,6 +21,9 @@ The look is built from independent axes. Each axis holds one choice at a time:
     variant        frame and tick geometry (journal, comms)       journal
     font           typeface (serif, sans)                         serif
     palette        colour cycle (default, tol)                    default
+    cmap           default colormap for images (sunset_warm,      sunset_warm
+                   sunset_warm_w, iridescent, viridis, or any
+                   registered name)
     redundancy     line style / marker per colour                 off
                    (off, dash, marker, both)
     grid           faint dotted grid (off, on)                    off
@@ -30,6 +33,7 @@ The setters are stateful and order independent: ``hi.size.two_col(); hi.font.san
 ``hi.font.sans(); hi.size.two_col()`` give identical rcParams, and the first call of any kind applies the whole look
 with the defaults above for everything you have not chosen. A style may declare its own defaults for the other axes
 (a monochrome style can ask for redundancy on); your explicit choices always win over those, whatever the call order.
+The first call also registers hamhelper's colormaps with matplotlib, because the default image.cmap is one of them.
 
 Every setter takes effect immediately and also returns a handle that undoes it when used in a ``with`` block::
 
@@ -47,9 +51,10 @@ exception: it rewrites the whole look. A ``with`` block undoes everything inside
 from pathlib import Path
 
 import matplotlib as mpl
-from cycler import cycler
 
-__all__ = ['style', 'size', 'variant', 'font', 'palette', 'redundancy', 'grid',
+from hamhelper import colours as _colours
+
+__all__ = ['style', 'size', 'variant', 'font', 'palette', 'cmap', 'redundancy', 'grid',
            'apply', 'reset', 'current', 'options']
 
 _STYLE_DIR = Path(__file__).resolve().parent / 'styles'
@@ -57,14 +62,15 @@ _STYLE_DIR = Path(__file__).resolve().parent / 'styles'
 # %------------------- What exists -------------------%
 
 #: Every axis, in the order its layer is applied (a later axis overrides an earlier one where they overlap).
-_AXES = ('style', 'size', 'variant', 'font', 'palette', 'redundancy', 'grid')
+_AXES = ('style', 'size', 'variant', 'font', 'palette', 'cmap', 'redundancy', 'grid')
 
 _CHOICES = {
     'style': ('hamstyle',),
     'size': ('one_col', 'one_col_tall', 'two_col', 'slide'),
     'variant': ('journal', 'comms'),
     'font': ('serif', 'sans'),
-    'palette': ('default', 'tol'),
+    'palette': ('default', 'tol'),  # really whatever is in colours.PALETTES, see _choices()
+    'cmap': ('ham_sunset_warm', 'ham_sunset_warm_w', 'ptol_iridescent', 'viridis'),  # any registered name works too
     'redundancy': ('off', 'dash', 'marker', 'both'),
     'grid': ('off', 'on'),
 }
@@ -76,6 +82,7 @@ _DEFAULTS = {
     'variant': 'journal',
     'font': 'serif',
     'palette': 'default',
+    'cmap': 'ham_sunset_warm',
     'redundancy': 'off',
     'grid': 'off',
 }
@@ -102,38 +109,20 @@ _TEXT_SCALE = {'serif': 1.0, 'sans': _SANS_SCALE}
 _TEXT_SIZES = ('font.size', 'axes.titlesize', 'axes.labelsize', 'xtick.labelsize', 'ytick.labelsize',
                'legend.fontsize')
 
-# %------------------- Colour cycles -------------------%
-# TODO(drop 2): these move to hamhelper.colours, which will own the palettes (names, pale bands, fit-component
-# colours); this module then reads them from there.
-
-#: Eight colours per palette: five designed, three overflow so the cycle never wraps a colour in a six-series figure.
-#: "default": Sunset-built; slots 1-2 are Tol's Sunset endpoints nudged in lightness (indigo darker, red lighter) so
-#: they stay apart in greyscale. Keep in step with axes.prop_cycle in styles/hamStyle.mplstyle.
-#: "tol": Paul Tol's Vibrant scheme reordered so neighbours contrast, plus three Muted colours as overflow.
-_PALETTES = {
-    'default': ['#29428F', '#C42E3C', '#238F9D', '#F67E4B', '#66CCEE', '#882255', '#BB5566', '#997700'],
-    'tol': ['#0077BB', '#CC3311', '#33BBEE', '#EE7733', '#009988', '#BB5566', '#882255', '#332288'],
-}
-
-#: Line style and marker per colour slot for redundancy="dash" / "marker" / "both", so slots that look alike in
-#: greyscale or to a colour-blind reader still differ in stroke. Slot 1 solid, slot 2 dashed. Markers sit every 11% of
-#: the axes diagonal, offset per slot so two lines never put a marker in the same place.
-_DASHES = ['-', (0, (5, 1.8)), (0, (1.2, 1.4)), (0, (5, 1.5, 1.2, 1.5)),
-           '-', (0, (5, 1.8)), (0, (1.2, 1.4)), (0, (5, 1.5, 1.2, 1.5))]
-_MARKERS = ['o', 's', '^', 'D', 'v', 'P', 'X', 'h']
+# %------------------- Choices -------------------%
+def _choices(axis):
+    """The names an axis accepts. Palettes are whatever colours.PALETTES holds, so adding one there adds it here."""
+    if axis == 'palette':
+        return tuple(_colours.PALETTES)
+    return _CHOICES[axis]
 
 
-def _make_cycle(palette_name, redundancy_name):
-    colours = _PALETTES[palette_name]
-    n = len(colours)
-    cyc = cycler(color=colours)
-    if redundancy_name in ('dash', 'both'):
-        cyc = cyc + cycler(linestyle=[_DASHES[i % len(_DASHES)] for i in range(n)])
-    if redundancy_name in ('marker', 'both'):
-        cyc = (cyc
-               + cycler(marker=[_MARKERS[i % len(_MARKERS)] for i in range(n)])
-               + cycler(markevery=[(0.012 + 0.023 * i, 0.11) for i in range(n)]))
-    return cyc
+def _ensure_cmap(name):
+    """Make sure `name` is in matplotlib's colormap registry, registering hamhelper's maps if need be."""
+    if name not in mpl.colormaps:
+        _colours.register_cmaps()
+    if name not in mpl.colormaps:
+        raise ValueError('unknown colormap {!r}: not in matplotlib or hamhelper.colours'.format(name))
 
 
 # %------------------- State -------------------%
@@ -196,7 +185,10 @@ def _compose(choices, changed=None):
     if 'variant' in todo:
         rc.update(_read('variant_' + choices['variant']))
     if 'palette' in todo or 'redundancy' in todo:
-        rc['axes.prop_cycle'] = _make_cycle(choices['palette'], choices['redundancy'])
+        rc['axes.prop_cycle'] = _colours.palette(choices['palette']).cycler(choices['redundancy'])
+    if 'cmap' in todo:
+        _ensure_cmap(choices['cmap'])
+        rc['image.cmap'] = choices['cmap']
     if 'grid' in todo:
         rc['axes.grid'] = choices['grid'] == 'on'
     return rc
@@ -255,8 +247,8 @@ def _check_axis(axis):
 
 def _check(axis, choice):
     _check_axis(axis)
-    if choice not in _CHOICES[axis]:
-        raise ValueError('unknown {} {!r}; choose from {}'.format(axis, choice, ', '.join(_CHOICES[axis])))
+    if axis != 'cmap' and choice not in _choices(axis):  # any colormap name is accepted; _compose checks it exists
+        raise ValueError('unknown {} {!r}; choose from {}'.format(axis, choice, ', '.join(_choices(axis))))
 
 
 def _set(axis, choice):
@@ -278,7 +270,7 @@ class _Axis:
 
     def options(self):
         """The names this axis accepts."""
-        return _CHOICES[self._axis]
+        return _choices(self._axis)
 
     def current(self):
         """The choice in force on this axis, or None before anything has been applied."""
@@ -353,6 +345,32 @@ class _Palette(_Axis):
         """Eight-colour cycle from Tol's Vibrant (blue, red, cyan, orange, teal) plus three of his Muted."""
         return _set('palette', 'tol')
 
+    def get(self):
+        """The Palette in force (the default one before anything has been applied): its cycle, names, pale bands
+        and fit-component colours. Read colours from here and one script renders in any palette."""
+        applied = _STATE['applied']
+        return _colours.palette(_DEFAULTS['palette'] if applied is None else applied['palette'])
+
+
+class _Cmap(_Axis):
+    _axis = 'cmap'
+
+    def sunset_warm(self):
+        """The warm 45% of Tol's Sunset, cream to dark red: sequential, and a slice of the diverging map."""
+        return _set('cmap', 'ham_sunset_warm')
+
+    def sunset_warm_w(self):
+        """Same ramp with its floor pulled to white, so empty space stays page-white."""
+        return _set('cmap', 'ham_sunset_warm_w')
+
+    def iridescent(self):
+        """Tol's Iridescent."""
+        return _set('cmap', 'ptol_iridescent')
+
+    def viridis(self):
+        """matplotlib's own default."""
+        return _set('cmap', 'viridis')
+
 
 class _Redundancy(_Axis):
     _axis = 'redundancy'
@@ -391,12 +409,13 @@ size = _Size()
 variant = _Variant()
 font = _Font()
 palette = _Palette()
+cmap = _Cmap()
 redundancy = _Redundancy()
 grid = _Grid()
 
 
 # %------------------- Whole-look functions -------------------%
-def apply(style=None, size=None, variant=None, font=None, palette=None, redundancy=None, grid=None):
+def apply(style=None, size=None, variant=None, font=None, palette=None, cmap=None, redundancy=None, grid=None):
     """Set several axes at once; an axis left as None keeps its current choice.
 
     Same as calling each setter in turn, but rcParams are rebuilt once, and the returned handle undoes all of it
@@ -405,7 +424,7 @@ def apply(style=None, size=None, variant=None, font=None, palette=None, redundan
         with hi.apply(size="slide", variant="comms"):
             ...
     """
-    given = {'style': style, 'size': size, 'variant': variant, 'font': font, 'palette': palette,
+    given = {'style': style, 'size': size, 'variant': variant, 'font': font, 'palette': palette, 'cmap': cmap,
              'redundancy': redundancy, 'grid': grid}
     explicit = dict(_STATE['explicit'])
     labels = []
@@ -448,4 +467,4 @@ def current():
 
 def options():
     """Every axis and the names it accepts."""
-    return dict(_CHOICES)
+    return {axis: _choices(axis) for axis in _AXES}

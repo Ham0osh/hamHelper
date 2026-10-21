@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri May 19 22:20:57 2023
-
-@author: Hamish
-"""
+# Created on Fri May 19 22:20:57 2023
+# @author: Hamish
 
 #### MATPLOTLIBRC FORMAT
 
@@ -105,7 +102,6 @@ Created on Fri May 19 22:20:57 2023
 #interactive: False
 #figure.hooks:          # list of dotted.module.name:dotted.callable.name
 #toolbar:     toolbar2  # {None, toolbar2, toolmanager}
-timezone:    US/Pacific       # a pytz timezone string, e.g., US/Central or Europe/Paris
 
 
 ## ***************************************************************************
@@ -410,7 +406,9 @@ axes.spines.right:  False
 
 #axes.unicode_minus: True  # use Unicode for the minus symbol rather than hyphen.  See
                            # https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
-axes.prop_cycle: cycler('color', ['#77AADD', '#EE8866', '#EEDD88', '#FFAABB', '#99DDFF','#44BB99', '#BBCC33',  '#AAAA00'])
+# hex colours are written without '#' on purpose: inside a style file a '#' starts a comment, and a quoted
+# '#RRGGBB' makes matplotlib drop the whole cycle (it silently falls back to tab10).
+axes.prop_cycle: cycler('color', ['77AADD', 'EE8866', 'EEDD88', 'FFAABB', '99DDFF', '44BB99', 'BBCC33', 'AAAA00'])
                   # ptol light
                   # color cycle for plot lines as list of string color specs:
                   # single letter, long name, or web-style hex

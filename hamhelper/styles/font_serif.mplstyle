@@ -1,0 +1,7 @@
+# HAMSTYLE :: font :: serif
+# Times-class serif text with STIX maths (font lists are in hamStyle.mplstyle).
+# hamStyle.mplstyle already carries this; the file exists so hamhelper.install can
+# switch back to it.
+
+font.family:        serif
+mathtext.fontset:   stix

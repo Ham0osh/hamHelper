@@ -1,0 +1,25 @@
+# HAMSTYLE :: variant :: journal
+# Four-sided bounding box with inward major and minor ticks. Isolates the data
+# landscape from surrounding body text and keeps tick marks from colliding
+# with the caption. hamStyle.mplstyle already carries this frame; the file
+# exists so hamhelper.install can switch back to it.
+# Apply AFTER a size file. Same keys as variant_comms, so either can follow
+# the other.
+
+axes.spines.top:        True
+axes.spines.right:      True
+axes.spines.bottom:     True
+axes.spines.left:       True
+
+xtick.direction:        in
+ytick.direction:        in
+xtick.top:              True
+xtick.bottom:           True
+ytick.left:             True
+ytick.right:            True
+xtick.minor.top:        True
+xtick.minor.bottom:     True
+ytick.minor.left:       True
+ytick.minor.right:      True
+xtick.minor.visible:    True
+ytick.minor.visible:    True

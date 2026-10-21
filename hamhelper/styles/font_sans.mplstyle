@@ -1,0 +1,12 @@
+# HAMSTYLE :: font :: sans
+# Helvetica-class sans text with STIX sans maths.
+#
+# Helvetica's cap height is 0.72 em against Times' 0.66, so at the same point
+# size sans reads about 8% bigger. hamhelper.install therefore multiplies the
+# text sizes of the size file (font.size, axes.titlesize, axes.labelsize, the
+# tick labels and legend.fontsize) by 0.92 when this file is selected. A plain
+# plt.style.use([...]) stack cannot do that arithmetic: scale those six keys
+# yourself if you use this file without hamhelper.install.
+
+font.family:        sans-serif
+mathtext.fontset:   stixsans

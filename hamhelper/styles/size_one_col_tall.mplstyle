@@ -1,0 +1,28 @@
+# HAMSTYLE :: size :: one_col_tall -- 1-column, tall
+# Same width and type scale as one_col, extra height for stacked panels
+# (data + residual/pull, magnitude + phase, etc.).
+figure.figsize:         3.37, 3.70
+font.size:              9.0
+axes.titlesize:         10.0
+axes.labelsize:         10.0
+xtick.labelsize:        9.0
+ytick.labelsize:        9.0
+legend.fontsize:        9.0
+axes.linewidth:         0.75
+axes.labelpad:          2.5
+axes.titlepad:          3.5
+lines.linewidth:        1.3
+lines.markersize:       3.2
+grid.linewidth:         0.45
+errorbar.capsize:       1.3
+xtick.major.size:       3.3
+ytick.major.size:       3.3
+xtick.minor.size:       1.8
+ytick.minor.size:       1.8
+xtick.major.width:      0.75
+ytick.major.width:      0.75
+xtick.minor.width:      0.6
+ytick.minor.width:      0.6
+xtick.major.pad:        2.8
+ytick.major.pad:        2.8
+legend.handlelength:    1.7

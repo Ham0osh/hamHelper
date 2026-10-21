@@ -1,0 +1,29 @@
+# HAMSTYLE :: size :: slide -- 16:9 presentation slide (posters use this too)
+# 10.0 x 5.63 in drops into a 13.33 x 7.5 in slide with room for a title bar.
+# Ticks and legend at 20 pt, labels at 22 pt: above the usual 18 pt floor for a
+# projected slide, and ~2.8% of figure width. Lines thicken with the type.
+figure.figsize:         10.0, 5.63
+font.size:              20.0
+axes.titlesize:         22.0
+axes.labelsize:         22.0
+xtick.labelsize:        20.0
+ytick.labelsize:        20.0
+legend.fontsize:        20.0
+axes.linewidth:         1.4
+axes.labelpad:          5.0
+axes.titlepad:          7.0
+lines.linewidth:        2.4
+lines.markersize:       7.5
+grid.linewidth:         0.9
+errorbar.capsize:       3.0
+xtick.major.size:       7.0
+ytick.major.size:       7.0
+xtick.minor.size:       4.0
+ytick.minor.size:       4.0
+xtick.major.width:      1.4
+ytick.major.width:      1.4
+xtick.minor.width:      1.1
+ytick.minor.width:      1.1
+xtick.major.pad:        6.0
+ytick.major.pad:        6.0
+legend.handlelength:    2.0

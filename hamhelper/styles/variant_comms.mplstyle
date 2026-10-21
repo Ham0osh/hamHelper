@@ -1,0 +1,26 @@
+# HAMSTYLE :: variant :: comms
+# Two spines, ticks outward, no box. For posters, slides and any figure read
+# at a distance or without a caption, where the frame is ink that earns
+# nothing. Apply AFTER a size file. Same keys as variant_journal.
+#
+# Note the companion rule: a FILLED field (image, pcolormesh, filled
+# contours) still wants a boundary even when the line plots beside it are
+# open. Box those panels by hand: spines visible, ticks inward on all sides.
+
+axes.spines.top:        False
+axes.spines.right:      False
+axes.spines.bottom:     True
+axes.spines.left:       True
+
+xtick.direction:        out
+ytick.direction:        out
+xtick.top:              False
+xtick.bottom:           True
+ytick.left:             True
+ytick.right:            False
+xtick.minor.top:        False
+xtick.minor.bottom:     True
+ytick.minor.left:       True
+ytick.minor.right:      False
+xtick.minor.visible:    True
+ytick.minor.visible:    True

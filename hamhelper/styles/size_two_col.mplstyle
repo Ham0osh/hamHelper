@@ -1,0 +1,29 @@
+# HAMSTYLE :: size :: two_col -- 2-column / full-width journal figure
+# 6.90 in spans both columns (175 mm). Ticks and legend 10 pt, labels 11 pt:
+# one point above the 1-column scale, since the figure is physically wider and
+# should sit at the journal body size (10 pt) rather than below it.
+figure.figsize:         6.90, 3.20
+font.size:              10.0
+axes.titlesize:         11.0
+axes.labelsize:         11.0
+xtick.labelsize:        10.0
+ytick.labelsize:        10.0
+legend.fontsize:        10.0
+axes.linewidth:         0.85
+axes.labelpad:          3.0
+axes.titlepad:          4.0
+lines.linewidth:        1.4
+lines.markersize:       3.6
+grid.linewidth:         0.5
+errorbar.capsize:       1.5
+xtick.major.size:       3.7
+ytick.major.size:       3.7
+xtick.minor.size:       2.0
+ytick.minor.size:       2.0
+xtick.major.width:      0.85
+ytick.major.width:      0.85
+xtick.minor.width:      0.7
+ytick.minor.width:      0.7
+xtick.major.pad:        3.2
+ytick.major.pad:        3.2
+legend.handlelength:    1.9

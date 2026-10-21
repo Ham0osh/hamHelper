@@ -36,3 +36,12 @@ def test_hamstyle_cycle_is_applied():
     rc = mpl.rc_params_from_file(STYLE_DIR / 'hamStyle.mplstyle', use_default_template=False)
     colours = rc['axes.prop_cycle'].by_key()['color']
     assert [c.lower().lstrip('#') for c in colours] == [c.lower().lstrip('#') for c in hc.colsets['ptol_light'][:8]]
+
+
+def test_style_is_available_by_package_name():
+    """plt.style.use accepts '<package>.<subpackage>.<file>', which is how an installed copy is used."""
+    with warnings.catch_warnings():
+        warnings.simplefilter('error')
+        with plt.style.context('hamhelper.styles.hamStyle'):
+            assert mpl.rcParams['figure.dpi'] == 200
+            assert not mpl.rcParams['axes.spines.top']

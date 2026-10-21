@@ -9,12 +9,17 @@ This repository contains the HamHelper package written in Python3 for scientific
 ### Installing
 
 In order to use this package you will need to have installed:  
- - Python3.XX,  
- - matplotlib,
- - scipy,
+ - Python 3.8 or newer,  
+ - matplotlib 3.5 or newer (tested up to 3.11),
  - numpy.  
  
 Install as you normally would with pip: `pip install hamhelper`
+
+The matplotlib style files ship with the package and can be used by name:
+```
+import matplotlib.pyplot as plt
+plt.style.use('hamhelper.styles.hamStyle')
+```
 
 ### Submodules
 

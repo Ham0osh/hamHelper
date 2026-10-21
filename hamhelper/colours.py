@@ -9,10 +9,11 @@ Contributions 'borrowed' from:
  - wackywendell/mutedplots:
    https://github.com/wackywendell/mutedplots/blob/master/mutedcolors.py
 """
+import warnings
+
 from hamhelper.errors import assert_error  # fixed import
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.cm as mcm
 import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
 import numpy as np
@@ -171,12 +172,17 @@ def register_cmaps(cmap_dict: dict = None):
         # load all colors
         cmap_dict = all_col
 
-    for name, colorlist in cmap_dict.items():
-        cmap = mcolors.LinearSegmentedColormap.from_list(name, colorlist)
-        mcm.register_cmap(name, cmap)
-        rname = name + '_r'
-        cmap = mcolors.LinearSegmentedColormap.from_list(rname, list(reversed(colorlist)))
-        mcm.register_cmap(rname, cmap)
+    # matplotlib.cm.register_cmap was removed in matplotlib 3.9; the registry API below exists from 3.5.
+    # force=True keeps repeated calls idempotent, as the old function was. Re-registering our own maps is
+    # expected here, so the "Overwriting the cmap" warning is silenced for this call only.
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', message='Overwriting the cmap')
+        for name, colorlist in cmap_dict.items():
+            cmap = mcolors.LinearSegmentedColormap.from_list(name, colorlist)
+            mpl.colormaps.register(cmap, name=name, force=True)
+            rname = name + '_r'
+            cmap = mcolors.LinearSegmentedColormap.from_list(rname, list(reversed(colorlist)))
+            mpl.colormaps.register(cmap, name=rname, force=True)
     return set(cmap_dict.keys())
 
 

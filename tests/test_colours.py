@@ -3,6 +3,7 @@
 # %------------------- Helper Tests -------------------%
 # Test that all entries in colour lists contain valid hex values
 import hamhelper.colours as hc
+import matplotlib as mpl
 import numpy as np
 
 
@@ -75,6 +76,26 @@ def test_rgb2hexlist(capsys):
     captured = capsys.readouterr()
     assert captured.out == ''
     assert captured.err == '', 'Error encountered when testing colours.rgb_to_hexlist().'
+
+
+def test_register_cmaps():
+    """register_cmaps must work on current matplotlib (mpl.cm.register_cmap was removed in 3.9)."""
+    names = hc.register_cmaps()
+    assert names == set(hc.all_col.keys())
+    for name in names:
+        assert name in mpl.colormaps, f'{name} was not registered.'
+        assert name + '_r' in mpl.colormaps, f'{name}_r was not registered.'
+
+    # the reversed map really is reversed at the ends
+    forward, backward = mpl.colormaps['ptol_sunset'], mpl.colormaps['ptol_sunset_r']
+    assert np.allclose(forward(0.0), backward(1.0))
+    assert np.allclose(forward(1.0), backward(0.0))
+
+    # calling again is allowed, and a custom dictionary only registers its own entries
+    assert hc.register_cmaps() == names
+    assert hc.register_cmaps({'hh_test_map': ['#000000', '#ffffff']}) == {'hh_test_map'}
+    assert np.allclose(mpl.colormaps['hh_test_map'](0.0)[:3], (0, 0, 0))
+    assert np.allclose(mpl.colormaps['hh_test_map_r'](0.0)[:3], (1, 1, 1))
 
 
 # %----------------------------------------------------%

@@ -40,8 +40,9 @@
 #   - within each axis the layer files hold the SAME keys (size_*: 25, variant_*: 16, font_*: 2); that is what makes
 #     switching safe, because a stale key from the previous choice can never be left behind
 #   - hamStyle.mplstyle repeats size_one_col, variant_journal and font_serif exactly, and its cycle equals
-#     install._PALETTES['default']
-#   - plt.style.use('hamhelper.styles.hamStyle') gives the same rcParams as hi.style.hamstyle() from rcdefaults
+#     colours.PALETTES['default'].cycler('off')
+#   - plt.style.use('hamhelper.styles.hamStyle') gives the same rcParams as hi.style.hamstyle() from rcdefaults,
+#     except image.cmap (hi sets it, the style file leaves it at matplotlib's default)
 # install
 #   - order independence: same final choices in any call order (with junk choices made first) -> identical rcParams
 #   - with-block: restores rcParams and hi.current() on exit, on an exception, and when nested
@@ -57,6 +58,31 @@
 #     to load part-way leaves them untouched too
 #   - hi.reset() restores rcParams exactly as before the first call; hi.reset('size') forgets one choice only
 #   - a figure draws at every size (plt.subplots, legend, savefig to a buffer)
+#   - cmap axis: first call sets image.cmap to ham_sunset_warm and registers it; hi.cmap.set('no_such_map') raises
+#     ValueError and changes nothing; hi.cmap.set('magma') works; reset() restores image.cmap
+#   - palette axis: hi.palette.get() is colours.palette(<name in force>); a palette added to colours.PALETTES shows
+#     up in hi.palette.options() and can be set (remember to delete it again)
+#
+# TODO(me): tests to write for the colour work (branch dev-hamstyle: colours.py)
+#
+# palettes
+#   - 'default' and 'tol': 8 colours, 8 names, 8 bands, 3 parts; every colour a valid #RRGGBB
+#   - Palette.cycler: 'off' -> only 'color'; 'dash' adds 'linestyle'; 'marker' adds 'marker' + 'markevery'; 'both'
+#     all four; None / False mean 'off'; anything else raises ValueError. palette('nope') raises KeyError
+#   - worst-pair separation of the first five colours stays above 17 (hc.cvd_scores('default', n=5)): a guard
+#     against someone nudging a colour and breaking colour-blind safety; parts beside slots 1-2 above 7.5
+# derived maps
+#   - nothing is registered on import; register_cmaps() registers every name and its '_r', twice in a row is fine,
+#     and register_cmaps({'x': [hex, hex]}) still takes plain lists; the _r map is the reverse
+#   - ham_sunset_warm is monotone in lightness; ham_sunset_warm_w starts at white; NaN / masked pixels are white
+#   - ordered(5) returns ORDERED_NODES exactly, ordered(2) the two ends, ordered(1) the first
+# CVD tools
+#   - delta_e matches Sharma et al.'s published CIEDE2000 pairs (e.g. (50, 2.6772, -79.7751) vs
+#     (50, 0, -82.7485) = 2.0425; (50, 2.5, 0) vs (73, 25, -18) = 27.1492); delta_e(x, x) = 0; symmetric
+#   - lab_lightness: white 100, black 0; to_greyscale gives equal channels; simulate_cvd on a grey changes nothing
+#     much; audit() returns a string naming all four vision types
+# HamColour
+#   - from_name('ham_sunset_warm') works; from_palette('tol') returns exactly the eight colours in order
 #
 # Tips: run `python -m pytest -W error` so any deprecation warning fails the test.
 #       "Bad value in file" from an rc/style file is a log message, not a warning: use the caplog fixture.

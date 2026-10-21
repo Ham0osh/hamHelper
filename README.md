@@ -51,11 +51,12 @@ hi.reset()                 # matplotlib as it was before the first call
 | `hi.size` | `one_col`, `one_col_tall`, `two_col`, `slide` | `one_col` |
 | `hi.variant` | `journal`, `comms` | `journal` |
 | `hi.font` | `serif`, `sans` | `serif` |
-| `hi.palette` | `default`, `tol` | `default` |
+| `hi.palette` | `default`, `tol` (any palette in `hamhelper.colours.PALETTES`) | `default` |
+| `hi.cmap` | `sunset_warm`, `sunset_warm_w`, `iridescent`, `viridis`; `hi.cmap.set(name)` takes any colormap name | `sunset_warm` |
 | `hi.redundancy` | `off`, `dash`, `marker`, `both` | `off` |
 | `hi.grid` | `off`, `on` | `off` |
 
-`hi.apply(size='slide', variant='comms')` sets several at once, `hi.current()` shows what is in force. `redundancy` gives each colour in the cycle its own line style and/or marker, for greyscale prints and colour-blind readers.
+`hi.apply(size='slide', variant='comms')` sets several at once, `hi.current()` shows what is in force, and `hi.palette.get()` returns the palette in force (cycle, names, pale bands, fit-component colours) so one script renders in any palette. The first setter call also registers hamhelper's colormaps with matplotlib (the default `image.cmap` is one of them); the standalone `hamStyle` file leaves `image.cmap` at matplotlib's default. `redundancy` gives each colour in the cycle its own line style and/or marker, for greyscale prints and colour-blind readers.
 
 ### Submodules
 
@@ -119,4 +120,11 @@ gtc( ... ):
 
 ---
 ### colours
-A suite of colour sets and colour maps I use with a custom `HamColor` class to easily import and play with the colours. Just stuff I like to use!
+A suite of colour sets and colour maps I use with a custom `HamColour` class to easily import and play with the colours. Just stuff I like to use!
+Importing it registers nothing with matplotlib; call `hamhelper.colours.register_cmaps()` when you want the names (`'ptol_sunset'`, `'ham_sunset_warm'`, each also as `'<name>_r'`) available to `cmap=`.
+
+**Palettes.** `hc.palette('default')` and `hc.palette('tol')` return a `Palette`: eight colours in slot order (the first five are the designed set, three more are overflow so a six-series figure never wraps a colour), a name and a pale band for each, and `parts`, three warm colours for the components of a total drawn in slot 2 (a fit made of peaks). `pal.cycler('both')` gives a matplotlib cycler (also `'off'`, `'dash'`, `'marker'`) that adds a line style and/or marker per colour for greyscale prints and colour-blind readers. `default` is built on Paul Tol's Sunset with its two endpoints nudged in lightness so a two-series figure stays apart in greyscale; `tol` is Tol's Vibrant scheme reordered. Add your own with `hc.PALETTES['mine'] = hc.Palette(...)`.
+
+**Sequential maps from Sunset.** `ham_sunset_warm` is the warm 45% of Sunset, so a sequential panel and a diverging `ptol_sunset` panel in one document share hues; `ham_sunset_warm_w` pulls its floor to white; `ham_sunset_ordered` and `hc.ordered(n)` give cool-to-warm colours for series that are ordered (time, voltage). `hc.tint(colour)` and `hc.shade(colour)` make a pale partner or a text-legible dark one.
+
+**Checking a palette.** Pure numpy: `hc.audit('default', n=5)` prints each colour's L* and the worst pair under normal vision, protanopia, deuteranopia and tritanopia (CIEDE2000; about 10 is comfortable for thin lines); `hc.cvd_scores`, `hc.simulate_cvd`, `hc.to_greyscale`, `hc.lab_lightness`, `hc.rgb_to_lab` and `hc.delta_e` are the pieces.

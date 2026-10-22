@@ -139,6 +139,40 @@
 # import hygiene
 #   - importing hamhelper.plotting leaves matplotlib.rcParams unchanged
 #
+# ----------------------------------------------------------------------------------------------------------
+# TODO(me): tests to write for the monochrome styles (branch dev-hamstyle: styles/alightroom.mplstyle,
+#           styles/adarkroom.mplstyle, colours.py 'alight' / 'adark' palettes and ham_grey / ham_grey_dark maps)
+# style files
+#   - hamStyle, alightroom and adarkroom define exactly the same keys (otherwise switching styles leaves one style's
+#     ink behind in the next), and alightroom / adarkroom differ from hamStyle only in colour keys: substrate, ink,
+#     grid, legend, hatch, patch.edgecolor, boxplot.*, axes.prop_cycle
+#   - plt.style.use('hamhelper.styles.adarkroom') gives the same rcParams as hi.style.adarkroom() for every key the
+#     file defines
+# palettes and maps
+#   - alight / adark: eight distinct greys (r == g == b), slot 1 is the ink, every slot has >= 3.2:1 contrast against
+#     its ground (#FFFFFF / #272727), MONO_DASHES has eight different strokes
+#   - cycler('dash') of the monochrome palettes has colour and linestyle only; the colour palettes' cyclers are
+#     unchanged from before (Palette gained highlight, lead, dashes with defaults)
+#   - ham_grey: white to black, ham_grey_dark: #272727 to #FFFFFF, steps of L* even to ~25%; masked colour is the ground
+#   - tint(c) unchanged on white; tint(c, ground=GROUND_DARK) mixes toward the ground
+#   - current_palette(): follows hi.palette.*, a plain ax.set_prop_cycle with one of our palettes, falls back to
+#     'default' for any other cycle (and for plain matplotlib)
+# install
+#   - hi.style.adarkroom() declares palette 'adark', cmap 'ham_grey_dark', redundancy 'dash'; an explicit choice made
+#     before or after beats it; hi.reset('palette', 'cmap', 'redundancy') hands them back to the style
+#   - no stale keys: hamstyle -> adarkroom -> alightroom -> hamstyle gives the same rcParams as a fresh hamstyle
+#   - size / variant / font compose over both styles in any order
+# look
+#   - an empty axes (labels, title, ticks) is pixel-identical in alightroom and hamstyle for every size / variant /
+#     font; adarkroom's antialiasing coverage matches to a few levels (Agg rounds in 8 bits)
+#   - a scene with lines, bars, hist, errorbar, boxplot, imshow (with masked pixels), colorbar, disc, polar_frame,
+#     band, runs and tag renders with r == g == b everywhere, and no pixel darker than the ground in adarkroom
+#   - plotting.band() and polar_frame(radial='leader') defaults follow current_palette() (highlight, lead) and are the
+#     old yellow / #555555 under hamstyle
+#   - the documented limit: under a marker cycle ax.hist(histtype='step') raises AttributeError ('markevery'), and
+#     ax.stairs works. If matplotlib ever fixes this, drop the note in install.py and the README.
+# ----------------------------------------------------------------------------------------------------------
+#
 # Tips: run `python -m pytest -W error` so any deprecation warning fails the test.
 #       "Bad value in file" from an rc/style file is a log message, not a warning: use the caplog fixture.
 #       Test against the old code too (git stash the fix) to check a test really fails without it.

@@ -1,27 +1,27 @@
 # Big files
 *.pdf
-colors/hamMap*.png
+# The demo PNGs in hamhelper/colour_demos and hamhelper/rc_test_plots are tracked on purpose (they show up in the
+# repository view); the gallery will replace them later. Do not add a pattern for them here.
 
 # IDE
 .vscode
 .spyproject
-.spyproject/
 .pylint.d
-__pycache__
-.venv
+
 # Python
 __pycache__/
+*.py[cod]
+.venv/
+venv/
 .DS_Store
-hamhelper/__pycache__/
 
 # Testing
 .pytest_cache/
 .coverage
-.egg-info
-*.egg-info
 
 # Distribution
 dist/
+build/
+*.egg-info/
 pyproject.toml
 uploading.txt
-build/

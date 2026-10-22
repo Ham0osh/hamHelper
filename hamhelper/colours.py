@@ -178,6 +178,21 @@ WARM_FRACTION = 0.45
 ORDERED_NODES = ['#364B9A', '#60BCE9', '#CCBB44', '#F67E4B', '#DD3D2D']
 
 
+#: The two monochrome rooms (styles alightroom and adarkroom): the ground a figure is drawn on and the ink on it. Pure
+#: white and black for the light room; an off-black for the dark one (pure black behind white type glares and smears
+#: on a screen), neutral because the reference it follows, the text game A Dark Room, is a green-tinged #272823.
+GROUND_LIGHT, INK_LIGHT = '#FFFFFF', '#000000'
+GROUND_DARK, INK_DARK = '#272727', '#FFFFFF'
+
+
+def _grey_ramp(l_from: float, l_to: float, n: int = 256):
+    """n RGBA greys evenly spaced in CIELAB lightness from l_from to l_to (0 black .. 100 white)."""
+    lightness = np.linspace(l_from, l_to, n)
+    y = np.where(lightness > 8.0, ((lightness + 16.0) / 116.0) ** 3, lightness / 903.2963)
+    g = np.where(y <= 0.0031308, 12.92 * y, 1.055 * np.power(y, 1 / 2.4) - 0.055)
+    return np.column_stack([g, g, g, np.ones(n)])
+
+
 def _build_derived_cmaps():
     sunset = get_continuous_cmap(colmaps['ptol_sunset'], name='ptol_sunset')
     warm = sunset(np.linspace(1.0 - WARM_FRACTION, 1.0, 256))
@@ -189,17 +204,26 @@ def _build_derived_cmaps():
     warm_w = warm.copy()
     warm_w[:n_floor] = np.array([1.0, 1.0, 1.0, 1.0]) * (1 - ramp) + warm[:n_floor] * ramp
 
+    # The monochrome pair: equal steps of lightness from the ground to the ink, so "more" always reads as "more ink"
+    # on that room. The first entry is exactly the ground, so the floor of an image melts into the page.
+    grey_dark = _grey_ramp(15.64, 100.0)  # 15.64 is the lightness of GROUND_DARK
+    grey_dark[0] = mcolors.to_rgba(GROUND_DARK)
+
+    # (colormap, colour for masked / NaN pixels): the ground of the room the map is made for, not matplotlib's
+    # transparent black
     maps = {
-        'ham_sunset_warm': mcolors.ListedColormap(warm, name='ham_sunset_warm'),
-        'ham_sunset_warm_w': mcolors.ListedColormap(warm_w, name='ham_sunset_warm_w'),
-        'ham_sunset_ordered': get_continuous_cmap(ORDERED_NODES, name='ham_sunset_ordered'),
+        'ham_sunset_warm': (mcolors.ListedColormap(warm, name='ham_sunset_warm'), GROUND_LIGHT),
+        'ham_sunset_warm_w': (mcolors.ListedColormap(warm_w, name='ham_sunset_warm_w'), GROUND_LIGHT),
+        'ham_sunset_ordered': (get_continuous_cmap(ORDERED_NODES, name='ham_sunset_ordered'), GROUND_LIGHT),
+        'ham_grey': (mcolors.ListedColormap(_grey_ramp(100.0, 0.0), name='ham_grey'), GROUND_LIGHT),
+        'ham_grey_dark': (mcolors.ListedColormap(grey_dark, name='ham_grey_dark'), GROUND_DARK),
     }
-    # masked / NaN pixels in an image panel come out page-white, not matplotlib's transparent black
-    return {name: cmap.with_extremes(bad='#FFFFFF') for name, cmap in maps.items()}
+    return {name: cmap.with_extremes(bad=bad) for name, (cmap, bad) in maps.items()}
 
 
-#: name -> Colormap for the maps derived from Sunset: ham_sunset_warm (sequential, the warm 45% of Sunset),
-#: ham_sunset_warm_w (same with the floor at white) and ham_sunset_ordered (cool to warm, five nodes).
+#: name -> Colormap for the derived maps: ham_sunset_warm (sequential, the warm 45% of Sunset), ham_sunset_warm_w
+#: (same with the floor at white), ham_sunset_ordered (cool to warm, five nodes), and the monochrome pair ham_grey
+#: (white to black, for the alightroom style) and ham_grey_dark (the dark ground to white, for adarkroom).
 derived_cmaps = _build_derived_cmaps()
 
 
@@ -218,11 +242,13 @@ def ordered(n: int) -> list:
     return [mcolors.to_hex(c).upper() for c in rgb]
 
 
-def tint(colour, keep: float = 0.25) -> str:
-    """`colour` mixed toward white, keeping the fraction `keep` of it: the pale partner for a band or fill.
-    keep=0.25 is about L* 88 for a mid-tone colour."""
+def tint(colour, keep: float = 0.25, ground='#FFFFFF') -> str:
+    """`colour` mixed toward `ground` (white unless told otherwise), keeping the fraction `keep` of it: the pale
+    partner for a band or fill. keep=0.25 is about L* 88 for a mid-tone colour on white. On a dark ground pass that
+    ground, e.g. tint(c, ground=GROUND_DARK), and the partner comes out dim instead of pale."""
     r, g, b = mcolors.to_rgb(colour)
-    return mcolors.to_hex(tuple(1 - keep * (1 - x) for x in (r, g, b)))
+    r0, g0, b0 = mcolors.to_rgb(ground)
+    return mcolors.to_hex(tuple(g_ + keep * (x - g_) for x, g_ in ((r, r0), (g, g0), (b, b0))))
 
 
 def shade(colour, f: float = 0.85):
@@ -243,6 +269,10 @@ GREY = '#777777'
 DASHES = ['-', (0, (5, 1.8)), (0, (1.2, 1.4)), (0, (5, 1.5, 1.2, 1.5)),
           '-', (0, (5, 1.8)), (0, (1.2, 1.4)), (0, (5, 1.5, 1.2, 1.5))]
 MARKERS = ['o', 's', '^', 'D', 'v', 'P', 'X', 'h']
+#: Eight DIFFERENT strokes, for the monochrome palettes, where tone is the only other thing telling slots apart:
+#: solid, dash, dot, dash-dot, long dash, sparse dot, dash-dot-dot, long dash-dot.
+MONO_DASHES = ['-', (0, (5, 1.8)), (0, (1.2, 1.4)), (0, (5, 1.5, 1.2, 1.5)),
+               (0, (9, 2.2)), (0, (1.2, 3.4)), (0, (5, 1.5, 1.2, 1.5, 1.2, 1.5)), (0, (9, 2, 1.2, 2))]
 _REDUNDANCY = ('off', 'dash', 'marker', 'both')
 
 
@@ -254,13 +284,19 @@ class Palette(NamedTuple):
            six-series figure never wraps a colour (a wrapped colour is two series wearing one colour)
     names  a name for each colour
     bands  the pale partner of each colour, for +/- 1 sigma bands and fills
-    parts  three warm colours for the COMPONENTS of a total drawn in slot 2 (a fit made of parts, a stack)
+    parts  three colours for the COMPONENTS of a total drawn in slot 2 (a fit made of parts, a stack)
+    highlight  fill for a target or acceptance band (plotting.band), faint enough to sit behind the data
+    lead   colour of the thin leader lines in plotting.polar_frame(radial='leader')
+    dashes one line style per slot for the 'dash' and 'both' redundancy cycles; empty means DASHES
     """
     name: str
     cycle: tuple
     names: tuple
     bands: tuple
     parts: tuple = ()
+    highlight: str = '#FCDB8E'
+    lead: str = '#555555'
+    dashes: tuple = ()
 
     def cycler(self, redundancy: str = 'off'):
         """matplotlib cycler for this palette, for ax.set_prop_cycle() or axes.prop_cycle.
@@ -276,7 +312,8 @@ class Palette(NamedTuple):
         n = len(self.cycle)
         cyc = _cycler(color=list(self.cycle))
         if redundancy in ('dash', 'both'):
-            cyc = cyc + _cycler(linestyle=[DASHES[i % len(DASHES)] for i in range(n)])
+            strokes = list(self.dashes) or DASHES
+            cyc = cyc + _cycler(linestyle=[strokes[i % len(strokes)] for i in range(n)])
         if redundancy in ('marker', 'both'):
             cyc = (cyc
                    + _cycler(marker=[MARKERS[i % len(MARKERS)] for i in range(n)])
@@ -301,26 +338,62 @@ _DEFAULT_NAMES = ('indigo', 'red', 'teal', 'orange', 'cyan', 'wine', 'rose', 'oc
 _TOL_CYCLE = ('#0077BB', '#CC3311', '#33BBEE', '#EE7733', '#009988', '#BB5566', '#882255', '#332288')
 _TOL_NAMES = ('blue', 'red', 'cyan', 'orange', 'teal', 'rose', 'wine', 'indigo')
 
+# The monochrome pair, for the alightroom and adarkroom styles. Each is a ladder of greys on its own ground, running
+# from the full ink (slot 1) down to the dimmest grey that still keeps 3.2:1 against the ground (slot 2; WCAG asks
+# 3:1 of graphical marks and the margin covers a thin antialiased line): #8F8F8F on white, #757575 on #272727.
+# The first five slots are five rungs equal in CIEDE2000 (about 11.5 apart on the light ladder, 9.5 on the dark one,
+# which has less room), taken in the order ink, dimmest, middle, three-quarters, a quarter so that any two adjacent
+# slots are as far apart as the ladder allows. Slots 6-8 fill the gaps (at worst 5.7 / 4.7 apart) so a six-series
+# figure never wraps a grey. Greys that close cannot be told apart by tone alone, which is why both styles ask for
+# redundancy: every slot also gets its own line style (MONO_DASHES, all different), and a marker if you ask for
+# redundancy='both'. `parts` are the three inner rungs.
+_ALIGHT_CYCLE = ('#000000', '#8F8F8F', '#515151', '#707070', '#2D2D2D', '#404040', '#616161', '#7F7F7F')
+_ADARK_CYCLE = ('#FFFFFF', '#757575', '#ADADAD', '#8E8E8E', '#D2D2D2', '#BFBFBF', '#9D9D9D', '#818181')
+_GREY_NAMES = ('ink', 'dim', 'mid', 'soft', 'firm', 'ash', 'slate', 'haze')
+
 #: name -> Palette. "default" is built on Tol's Sunset: slots 1-2 are its two endpoints nudged in lightness (indigo
 #: darker, red lighter) so a two-series figure stays apart in greyscale, slots 3-5 were chosen by max-min search over
 #: the Tol pool for greyscale and dichromatic separation, 6-8 are overflow (wine, rose, ochre). "tol" is Tol's Vibrant
 #: scheme reordered so neighbouring lines contrast as strongly as Vibrant allows (blue, red, cyan, orange, teal),
-#: plus three Tol Muted colours as overflow. Add your own with PALETTES['mine'] = Palette(...).
+#: plus three Tol Muted colours as overflow. "alight" and "adark" are the greys of the alightroom and adarkroom styles
+#: (see above); each is made for its own ground, so on the other one the contrast is not there. Add your own with
+#: PALETTES['mine'] = Palette(...).
 PALETTES = {
     'default': Palette('default', _DEFAULT_CYCLE, _DEFAULT_NAMES,
                        ('#C2E4EF', '#E9B7B4', '#AFD9DF', '#FBD3BC', '#CCEEFF',
                         tint('#882255'), tint('#BB5566'), tint('#997700')),
                        SUNSET_PARTS),
     'tol': Palette('tol', _TOL_CYCLE, _TOL_NAMES, tuple(tint(c) for c in _TOL_CYCLE), TOL_PARTS),
+    'alight': Palette('alight', _ALIGHT_CYCLE, _GREY_NAMES, tuple(tint(c) for c in _ALIGHT_CYCLE),
+                      ('#2D2D2D', '#515151', '#707070'), highlight='#EBEBEB', lead='#555555', dashes=tuple(MONO_DASHES)),
+    'adark': Palette('adark', _ADARK_CYCLE, _GREY_NAMES, tuple(tint(c, ground=GROUND_DARK) for c in _ADARK_CYCLE),
+                      ('#D2D2D2', '#ADADAD', '#8E8E8E'), highlight='#383838', lead='#AAAAAA', dashes=tuple(MONO_DASHES)),
 }
 
 
 def palette(name: str = 'default') -> Palette:
-    """The palette called `name` from PALETTES ("default" or "tol")."""
+    """The palette called `name` from PALETTES ("default", "tol", "alight" or "adark")."""
     try:
         return PALETTES[name]
     except KeyError:
         raise KeyError("unknown palette {!r}; choose from {}".format(name, ', '.join(sorted(PALETTES)))) from None
+
+
+def current_palette() -> Palette:
+    """The palette whose colours are the cycle matplotlib is using (rcParams['axes.prop_cycle']).
+
+    Looks the cycle up in PALETTES, so it follows hamhelper.install without importing it, and also a plain
+    ax.set_prop_cycle or plt.style.use that happens to set one of ours. Falls back to the "default" palette for any
+    other cycle. The plotting helpers use it to pick colours that suit the room (the pale band behind data, the
+    leader lines of a polar plot)."""
+    try:
+        have = [mcolors.to_hex(c).upper() for c in mpl.rcParams['axes.prop_cycle'].by_key().get('color', [])]
+    except Exception:
+        have = []
+    for pal in PALETTES.values():
+        if have == [c.upper() for c in pal.cycle]:
+            return pal
+    return PALETTES['default']
 
 
 # Accessibility ##############################################################################################

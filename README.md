@@ -130,3 +130,9 @@ Importing it registers nothing with matplotlib; call `hamhelper.colours.register
 **Checking a palette.** Pure numpy: `hc.audit('default', n=5)` prints each colour's L* and the worst pair under normal vision, protanopia, deuteranopia and tritanopia (CIEDE2000; about 10 is comfortable for thin lines); `hc.cvd_scores`, `hc.simulate_cvd`, `hc.to_greyscale`, `hc.lab_lightness`, `hc.rgb_to_lab` and `hc.delta_e` are the pieces.
 
 **Trying a colour map.** `HamColour.test()` draws a colour bar, lines, markers and a scatter in the map; `test(mapBool=True)` adds a map of Canada's provinces and territories, drawn with numpy and matplotlib only (no Basemap). `HamColour.example_map(ax)` draws just the map and returns its Mercator projection, so `m(lon, lat)` gives the position of a point on it. The map files are in the repository but not in the pip package.
+
+---
+### Licence and credits
+hamhelper is released under the MIT licence (see `LICENSE`).
+
+The example map in `hamhelper/map_files` is Statistics Canada's *Provinces/Territories, Cartographic Boundary File, 2016 Census*, adapted: this copy has its coordinates as longitude and latitude. Contains information licensed under the [Open Government Licence – Canada](https://open.canada.ca/en/open-government-licence-canada). Details in `hamhelper/map_files/NOTICE.md`.

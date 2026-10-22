@@ -53,7 +53,7 @@ setup(
     classifiers=[
         'Framework :: Flake8',
         'Intended Audience :: Science/Research',
-        'License :: Free for non-commercial use',
+        'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.10',

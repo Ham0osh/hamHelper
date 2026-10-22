@@ -14,6 +14,7 @@ import warnings
 from typing import NamedTuple
 
 from cycler import cycler as _cycler
+from hamhelper import _geo
 from hamhelper.errors import assert_error  # fixed import
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -709,7 +710,8 @@ class HamColour:
 
         Args:
             N (int, optional): _description_. Defaults to initialize length.
-            mapBool (bool, optional): Set to true if Basemap is installed, adds a map to the plot. Defaults to False.
+            mapBool (bool, optional): Adds a map of Canada to the plot, coloured with the map (see example_map).
+                Defaults to False.
             savePath (str, optional): Directory to save the figure in (as hamMap_<name>.png), relative to the
                 package directory unless absolute. Defaults to None meaning do not save.
         """
@@ -727,12 +729,11 @@ class HamColour:
 
         ax_map = None  # leave empty if we dont want to plot
         if mapBool:
-            # if basemap is installed creates larger figure
+            # with a map the figure is wider
             fig = plt.figure(tight_layout=True, figsize=(11, 4))
             gs = gridspec.GridSpec(2, 3, height_ratios=[1, 5], width_ratios=[3, 5, 3])
             pp = 1
         else:
-            # if basemap is not installed creates smaller figure
             fig = plt.figure(tight_layout=True, figsize=(8, 4))
             gs = gridspec.GridSpec(2, 2, height_ratios=[1, 5], width_ratios=[5, 3])
             pp = 0
@@ -806,7 +807,7 @@ class HamColour:
         if mapBool:
             # PLOT MAP %---------------------------------------------------------------%
             ax_map = fig.add_subplot(gs[:, 0])
-            # m = self.example_map(ax_map, N)
+            self.example_map(ax_map, N)
             ax_map.axis('off')
 
         # format axis to make it pretty!
@@ -852,7 +853,14 @@ class HamColour:
             return HamColour(new_cmap, length=self._length)
 
     def example_map(self, ax, N: int = None, shape_file: str = 'lpr_000b16a_e'):
-        r"""Generate example map from a map of canada on a given matplotlib axis colored in N colors.
+        r"""Draw an example map of Canada on a given matplotlib axis, each province or territory in one of N colours.
+
+        Needs only numpy and matplotlib: hamhelper._geo reads the shapefile and does the Mercator projection that
+        Basemap used to do.
+
+        Map data: Statistics Canada, Provinces/Territories, Cartographic Boundary File, 2016 Census (adapted
+        from the original, see map_files/NOTICE.md). Contains information licensed under the Open Government
+        Licence - Canada.
 
         Args:
             ax (plt.Axes): Axes to plot map on.
@@ -861,43 +869,32 @@ class HamColour:
                                         map. Defaults to 'lpr_000b16a_e'.
 
         Returns:
-            Basemap: Basemap object describing the map plotted.
+            hamhelper._geo.Mercator: the projection of the map drawn. m(lon, lat) gives the (x, y) position
+            on the axes, so points can be added to the map; m.xmax and m.ymax are its far corner.
+
+        Raises:
+            FileNotFoundError: the shapefile is not there (map_files is in the repository but not in the pip
+                               package).
         """
-        # mapping imports
-        try:
-            from mpl_toolkits.basemap import Basemap
-            from matplotlib.patches import Polygon
-            from matplotlib.collections import PatchCollection
-        except ImportError as ie:
-            print("ImportError: Basemap, Polygon, or PatchCollection from matplotlib!")
-            print(ie)
-            return 0
+        from matplotlib.collections import PathCollection
 
         if N is None:
             N = self._length
         colors = self.cmap(np.linspace(0, 1, N))
 
-        try:
-            shape_file = os.path.join(_resolve_dir('map_files'), shape_file.lstrip('\\/'))
-        except Exception as e:
-            print('Error finding map file, basemap likely not found...')
-            print(e)
+        shape_file = os.path.join(_resolve_dir('map_files'), shape_file.lstrip('\\/'))
+        shapes = _geo.read_shapefile(shape_file)  # raises FileNotFoundError when missing
 
-        # generate basemap
-        m = Basemap(projection='merc', llcrnrlon=-144, llcrnrlat=41, urcrnrlon=-51, urcrnrlat=83.7)  # center canada
-        m.readshapefile(shape_file, name='lpr_000b16a_e', default_encoding='iso-8859-15', drawbounds=True)
+        m = _geo.Mercator(llcrnrlon=-144, llcrnrlat=41, urcrnrlon=-51, urcrnrlat=83.7)  # centred on Canada
 
-        # color provinces as patches
-        patches = []
+        # One path per province in a single collection, colours dealt out at random. A collection and not
+        # ax.add_patch: since matplotlib 3.8 add_patch walks every segment of the path in Python to find its
+        # limits, which takes about 25 s for Nunavut alone (3.4 million vertices in the file). The limits are set below.
         np.random.shuffle(colors)
-        for sn in range(13):  # 13 provinces
-            pn = []
-            for info, shape in zip(m.lpr_000b16a_e_info, m.lpr_000b16a_e):
-                if info['SHAPENUM'] == sn + 1:
-                    pn.append(Polygon(np.array(shape), True))
-            patches.append(pn)
-            ax.add_collection(PatchCollection(pn, facecolor=colors[sn % len(colors)], edgecolor='k', linewidths=0.1,
-                                              zorder=2))
+        paths = [_geo.polygon_path(shape.parts, m) for shape in shapes]
+        ax.add_collection(PathCollection(paths, facecolors=[colors[k % len(colors)] for k in range(len(paths))],
+                                         edgecolors='k', linewidths=0.1, zorder=2), autolim=False)
+        ax.set(xlim=(m.xmin, m.xmax), ylim=(m.ymin, m.ymax), aspect='equal')
         return m
 
 

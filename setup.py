@@ -3,12 +3,7 @@ from setuptools import setup, find_packages
 from hamhelper import __version__
 
 # Extra requirements
-extra_maps = [
-    'Basemap',
-]
-
 extra_test = [
-    *extra_maps,
     'pytest>=4',
     'coverage',
 ]
@@ -19,7 +14,6 @@ extra_ci = [
 ]
 
 extra_dev = [
-    *extra_maps,
     *extra_test,
 ]
 
@@ -53,7 +47,6 @@ setup(
     ],
 
     extras_require={
-        'map': extra_maps,
         'dev': extra_dev,
     },
 

@@ -16,7 +16,24 @@
 #   - from_hex_gradient with locations above 1 rescales them to [0, 1] (the walrus bound a bool, not the max)
 #   - from_name('nonsense') prints a message and returns a one colour white map
 #   - truncate(update=True / False), reversed / -col, += stacking
-#   - example_map without Basemap installed prints and returns 0, no raise
+#   - example_map draws one collection of 13 paths, returns a Mercator and leaves the limits at (0, xmax), (0, ymax);
+#     a missing shapefile raises FileNotFoundError; test(mapBool=True) draws (no Basemap needed any more)
+# _geo (hamhelper/_geo.py: numpy-only shapefile reader and Mercator)
+#   - read_shapefile on map_files/lpr_000b16a_e: 13 shapes in PRUID order; each record's header bbox equals the bbox
+#     of its points; ring and point counts match the .shx index (27132 rings, 3390960 points in all); every ring is
+#     closed; attributes (PRENAME, PRFNAME 'Québec' with its accent) come from the .dbf
+#   - spherical areas of the provinces are within 1% of Statistics Canada's totals except Ontario and Quebec (Great
+#     Lakes and James Bay water is clipped): a guard against reading the coordinates wrong
+#   - bad input: a file that is not a shapefile (file code != 9994) and a point-type shapefile raise ValueError; a
+#     missing .dbf is fine
+#   - read_dbf: text, integer, float, logical and blank numeric fields (build a tiny .dbf in tmp_path with struct)
+#   - Mercator: the lower-left corner maps to (0, 0); xmax = R * radians(longitude span); y equals
+#     R * (asinh(tan(lat)) - asinh(tan(lat0))); inverse(m(lon, lat)) round-trips; poles and reversed corners raise
+#     ValueError
+#   - polygon_path: one MOVETO per ring and no CLOSEPOLY; a clockwise outer ring with an anticlockwise hole renders
+#     the hole empty, the same orientation fills it (draw a PathPatch with Agg and read a pixel: Path.contains_point
+#     does not follow the fill rule)
+#   - do NOT ax.add_patch the big paths in a test: matplotlib >= 3.8 takes ~25 s for Nunavut alone
 # colours._resolve_dir, savePath, makeAllTests
 #   - relative paths land in the package folder, absolute paths are used as given, legacy '\\colour_demos' still works
 #   - test(savePath=tmp_path) writes hamMap_<name>.png (it used to write one file with backslashes in its name on

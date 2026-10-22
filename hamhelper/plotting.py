@@ -178,7 +178,8 @@ def polar_frame(ax, ticks='cardinal', labels=None, radial: str = 'spoke', rticks
         direction ('in' or 'out'): which way the rim ticks point.
         color: colour of the frame, ticks and guides. Defaults to rcParams['axes.edgecolor'].
         leader (dict, optional): style overrides for the leader layout, e.g. dict(color='#888', alpha=1, lw=0.8,
-            pad=5): lw is a multiple of axes.linewidth, pad the gap in points between line end and numeral.
+            pad=5): lw is a multiple of axes.linewidth, pad the gap in points between line end and numeral. The
+            colour defaults to the `lead` of the palette in force (dark grey, or pale grey in adarkroom).
 
     Everything is drawn in points or axes fractions, so it looks the same at every figure size. The room the rim
     labels need on the east side is remembered on the axes so that colorbar() clears it.
@@ -205,7 +206,7 @@ def polar_frame(ax, ticks='cardinal', labels=None, radial: str = 'spoke', rticks
     fs = _tick_label_pt()
     Lmaj = mpl.rcParams['xtick.major.size']
     Lrim, Lrim_min, Lrad = Lmaj, max(mpl.rcParams['xtick.minor.size'], 0.6 * Lmaj), Lmaj
-    lead = dict(color='#555555', alpha=0.75, lw=0.55, pad=3.5)
+    lead = dict(color=_colours.current_palette().lead, alpha=0.75, lw=0.55, pad=3.5)
     lead.update(leader or {})
     sgn_in = -1.0 if direction == 'in' else 1.0
 
@@ -474,10 +475,15 @@ def spec_tick(ax, value: float, axis: str = 'y') -> float:
     return value
 
 
-def band(ax, lo: float, hi: float, axis: str = 'y', color: str = '#FCDB8E', label: str = None, alpha: float = 1.0):
-    """Target or acceptance band as a filled span, behind the data, with a legend patch if `label` is given."""
+def band(ax, lo: float, hi: float, axis: str = 'y', color: str = None, label: str = None, alpha: float = 1.0):
+    """Target or acceptance band as a filled span, behind the data, with a legend patch if `label` is given.
+
+    color defaults to the highlight of the palette in force (pale yellow for the colour palettes, a faint grey for
+    the monochrome ones; see hamhelper.colours.current_palette)."""
     if axis not in ('x', 'y'):
         raise ValueError("axis must be 'x' or 'y', not {!r}".format(axis))
+    if color is None:
+        color = _colours.current_palette().highlight
     span = ax.axhspan if axis == 'y' else ax.axvspan
     return span(lo, hi, color=color, lw=0, alpha=alpha, zorder=0.3, label=label)
 

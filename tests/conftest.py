@@ -101,6 +101,44 @@
 # HamColour
 #   - from_name('ham_sunset_warm') works; from_palette('tol') returns exactly the eight colours in order
 #
+# TODO(me): tests to write for the plotting helpers (branch dev-hamstyle: plotting.py, section "Figure helpers")
+#
+# colorbar
+#   - same height as its panel after aspect='equal' or a squashed aspect (draw, compare window extents); thickness is
+#     0.8 x the tick-label size in points at every figure size; gap is 0.8 x that plus the east-label room polar_frame
+#     left on the axes (ax._ham_rim); outline takes axes.edgecolor; label set; width= and pad= are honoured
+#   - ax=None uses the mappable's own axes, not plt.gca(); a list or a 2-D array of axes uses the first; cax= is used
+#     as given and width / pad are ignored
+# framed / disc
+#   - framed: four spines visible, ticks inward on all sides, axisbelow False
+#   - disc: images, collections, a list of them and a ContourSet are clipped; a legacy ContourSet (an object with a
+#     .collections list that is not an Artist, as before matplotlib 3.8) is clipped piece by piece; left and bottom
+#     spines are offset and bounded to (-r, r); aspect equal; no warning with a real ContourSet (-W error)
+# polar_frame
+#   - bad ticks preset, radial, direction, or an rlabels list of the wrong length raises ValueError
+#   - labels='deg' / 'compass' / dict create the annotations; the lower-left quadrant is skipped for radial='leader'
+#   - ax._ham_rim records room for the east and north/south labels, and colorbar clears it
+#   - every helper runs under plain matplotlib defaults (string label sizes, no constrained layout), and under a dark
+#     rcParams context the tag plate takes axes.facecolor and the colorbar outline and polar frame axes.edgecolor
+# fit_height / square_figure
+#   - the figure height settles (two calls give the same height); grow=False never makes it taller; the panel ends up
+#     square to 0.003 in
+# runs
+#   - one LineCollection of n traces in the aggregate's colour at alpha 0.35, below the aggregate; the aggregate takes
+#     the next cycle colour and the traces use NO cycle slots (with hi.redundancy.both(), an ordinary line plotted
+#     after runs() is slot 2, not slot 8); mean vs median; a 1-D Y is one run; limits include every trace
+# label helpers
+#   - guide / panel_label / tag accept ls= or linestyle=, lw= or linewidth=, c= or color=, size= or fontsize=, weight=
+#     or fontweight= (matplotlib rejects both spellings together); defaults applied otherwise; bad which / loc / axis
+#     raise ValueError
+#   - spec_tick adds a tick, keeps the automatic ones, adds no duplicate, works on an inverted axis
+#   - units returns 'name [unit]' (or just name) and sets the label on the right axis
+# save
+#   - writes name__size__variant__suffix.ext with whichever parts are given, creates outdir; a png at 3.37 x 2.40 in
+#     and dpi=600 is 2022 x 1440 px
+# import hygiene
+#   - importing hamhelper.plotting leaves matplotlib.rcParams unchanged
+#
 # Tips: run `python -m pytest -W error` so any deprecation warning fails the test.
 #       "Bad value in file" from an rc/style file is a log message, not a warning: use the caplog fixture.
 #       Test against the old code too (git stash the fix) to check a test really fails without it.

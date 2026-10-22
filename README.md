@@ -111,6 +111,37 @@ errorbands(x, y, yerr, capsize = 0, ax = None, color = None, *args, **kwargs):
 >     Passed to plt.ax.fill\_between().  
 
 
+**Figure helpers**
+
+Tools for building a figure panel by panel. They read matplotlib's rcParams when called, never when imported, so they follow whatever style is in force (`hamhelper.install`, `plt.style.use`, or matplotlib's own defaults); the plates behind labels and the outlines take `axes.facecolor` and `axes.edgecolor`, so they suit a dark style too. The docstrings list every argument.
+
+| function | what it does |
+|---|---|
+| `colorbar(mappable, ax)` | colourbar exactly as tall as its panel, with its thickness set in points so it is the same weight at every size; `cax=` draws into your own axes instead |
+| `framed(ax)` | box an image panel: four spines, ticks inward and above the image (for the open comms variant) |
+| `polar_frame(ax, ticks, labels, radial)` | dress a polar axes as a clean circular panel: rim ticks and labels, a radial spoke or a column of leader numerals |
+| `disc(ax, artists)` | clip images and contours to a disc, with the circle as the frame and ordinary offset x and y spines |
+| `fit_height(fig, ax)`, `square_figure(fig, ax)` | trim the figure height so an equal-aspect panel fills the width, or a panel comes out exactly square |
+| `units(ax, 'y', name, unit)` | axis label in the house form `name [unit]` |
+| `runs(ax, x, Y)` | thin translucent per-run traces under a bold mean or median; the traces never use up colour-cycle slots |
+| `band`, `guide`, `spec_tick` | target band, dashed grey reference line, and a tick placed at a requirement value |
+| `tag`, `panel_label` | corner label on a pale plate; bold panel letter such as `(a)` |
+| `save(fig, name)` | write pdf and png at the figure's true size (never `bbox_inches='tight'`), named `name__size__variant` |
+
+```python
+import matplotlib.pyplot as plt
+import hamhelper.install as hi
+import hamhelper.plotting as hp
+
+hi.apply(size='one_col', variant='comms')
+fig, ax = plt.subplots()
+im = ax.imshow(img)
+hp.framed(ax)                                          # an image panel gets a box even in the open variant
+hp.colorbar(im, ax, label=r'Irradiance, $I/I_0$')
+hp.save(fig, 'beam', size='one_col', variant='comms')  # figures/beam__one_col__comms.pdf and .png
+```
+
+
 **hamhelper.plotting.gtc()**  
 COMING SOON: Generate a great triangle of confusion from a multi-dimensional pandas dataframe with one column correspponding to the dimension being evaluated (cost, error, counts, likelyhood...)
 ```

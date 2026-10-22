@@ -1,0 +1,197 @@
+# =============================================================================
+#  ALIGHTROOM  ::  hamstyle in black ink on a white page, greys and nothing else
+#
+#  The same figure as hamstyle with every colour taken out: pure black on pure
+#  white, series told apart by a ladder of greys AND by line style.
+#  For print, for photocopies, for a poster that has to survive a bad printer.
+#  Named for the text game A Dark Room, whose interface it borrows its restraint
+#  from: one ink, one ground, hairline structure, grey for what recedes.
+#
+#      plt.style.use('hamhelper.styles.alightroom')
+#      plt.style.use(['hamhelper.styles.alightroom', 'hamhelper.styles.size_two_col'])
+#
+#  hamhelper.install (import hamhelper.install as hi) switches it for you and
+#  remembers what you picked: hi.style.alightroom(), hi.size.two_col(), ...
+#
+#  This file is hamStyle.mplstyle with the COLOUR keys changed and nothing else:
+#  the same sizes, frame, ticks, type and layout, and the same size_*, variant_*
+#  and font_* overlays on top. Keep the two in step when you edit either; the
+#  list of keys must stay identical so that switching styles leaves nothing behind.
+#
+#  Hex colours are written WITHOUT a leading '#' because '#' starts a comment
+#  in a style file. (A quoted '#hex' inside axes.prop_cycle is silently cut off
+#  and matplotlib keeps its own colours.)
+# =============================================================================
+
+# --- Substrate ---------------------------------------------------------------
+figure.facecolor:       ffffff
+axes.facecolor:         ffffff
+savefig.facecolor:      ffffff
+savefig.edgecolor:      ffffff
+figure.edgecolor:       ffffff
+
+# --- Layout engine -----------------------------------------------------------
+# Constrained layout, NOT autolayout: it solves label collisions while keeping
+# the outer canvas exactly the size you asked for. Paired with
+# savefig.bbox=standard this guarantees a 3.37 in figure lands as 3.37 in on
+# the page, so the type scale you designed is the type scale that prints.
+figure.autolayout:              False
+figure.constrained_layout.use:  True
+figure.constrained_layout.h_pad: 0.02
+figure.constrained_layout.w_pad: 0.02
+figure.constrained_layout.hspace: 0.03
+figure.constrained_layout.wspace: 0.03
+
+# --- Typography --------------------------------------------------------------
+# TeX Gyre Termes is a metric-compatible Times clone and is present on nearly
+# every TeX-bearing Linux box; Times New Roman is used on macOS or Windows.
+# STIX matches Times metrics for maths, so $\tau$ sits correctly on the
+# baseline next to roman text. The sans list is used by font_sans.
+font.serif:         TeX Gyre Termes, Times New Roman, Nimbus Roman, Liberation Serif, DejaVu Serif
+font.sans-serif:    TeX Gyre Heros, Helvetica, Arial, Liberation Sans, DejaVu Sans
+font.monospace:     DejaVu Sans Mono, Latin Modern Mono, Liberation Mono, monospace
+mathtext.default:   regular
+
+# --- Ink ---------------------------------------------------------------------
+text.color:         000000
+axes.edgecolor:     000000
+axes.labelcolor:    000000
+xtick.color:        000000
+ytick.color:        000000
+xtick.labelcolor:   000000
+ytick.labelcolor:   000000
+
+# --- Boxes, whiskers, outlines ------------------------------------------------
+# Every outline, whisker and median in the ink. (hamStyle sets the same keys at matplotlib's own values, so
+# switching between styles never leaves one style's ink behind in another's.)
+patch.edgecolor:                    000000
+boxplot.boxprops.color:             000000
+boxplot.whiskerprops.color:         000000
+boxplot.capprops.color:             000000
+boxplot.flierprops.color:           000000
+boxplot.flierprops.markeredgecolor: 000000
+boxplot.medianprops.color:          000000
+boxplot.meanprops.color:            000000
+boxplot.meanprops.markerfacecolor:  000000
+boxplot.meanprops.markeredgecolor:  000000
+
+# --- Layering and titles -----------------------------------------------------
+# 'line' (matplotlib's default): ticks and grid sit above fills and images but
+# beneath lines. True would bury inward ticks under every image panel.
+# Titles are left-anchored and regular weight: a journal caption does the job
+# of a title, so when one is used it should be quiet.
+axes.axisbelow:     line
+axes.titlelocation: left
+axes.titleweight:   normal
+
+# --- Grid (off by default; enable per-axes when density demands it) ----------
+axes.grid:          False
+grid.color:         000000
+grid.linestyle:     :
+grid.alpha:         0.12
+
+# --- Legend: no box, no shadow, tight ----------------------------------------
+legend.frameon:         False
+legend.framealpha:      1.0
+legend.facecolor:       ffffff
+legend.edgecolor:       000000
+legend.fancybox:        False
+legend.borderpad:       0.3
+legend.labelspacing:    0.30
+legend.handletextpad:   0.5
+legend.columnspacing:   1.0
+legend.borderaxespad:   0.4
+legend.numpoints:       1
+legend.scatterpoints:   1
+
+# --- Numbers -----------------------------------------------------------------
+# useoffset:False is a correctness setting, not a cosmetic one: it stops
+# matplotlib silently printing "+1.4832e3" in the corner of the axis.
+axes.formatter.useoffset:     False
+axes.formatter.use_mathtext:  True
+axes.formatter.limits:        -3, 4
+
+# --- Marks -------------------------------------------------------------------
+lines.solid_capstyle:   round
+lines.dash_capstyle:    round
+lines.markeredgewidth:  0.0
+scatter.edgecolors:     none
+hatch.color:            000000
+
+# --- Colour cycle -------------------------------------------------------------
+# Eight greys from the full ink down to the dimmest that keeps 3.2:1 against white
+# (hamhelper.colours.PALETTES['alight']), each with its own line style (redundancy='dash'),
+# because greys this close cannot be told apart by tone alone. No markers: matplotlib
+# cannot give a filled polygon (ax.fill, hist(histtype='step')) a marker cycle.
+axes.prop_cycle: cycler('color', ['000000', '8F8F8F', '515151', '707070', '2D2D2D', '404040', '616161', '7F7F7F']) + cycler('linestyle', ['-', (0, (5, 1.8)), (0, (1.2, 1.4)), (0, (5, 1.5, 1.2, 1.5)), (0, (9, 2.2)), (0, (1.2, 3.4)), (0, (5, 1.5, 1.2, 1.5, 1.2, 1.5)), (0, (9, 2, 1.2, 2))])
+
+# --- Export ------------------------------------------------------------------
+# fonttype 42 embeds TrueType outlines rather than Type-3, which is what
+# APS/Elsevier/IOP preflight checkers demand. svg.fonttype:none keeps text as
+# text so Illustrator/Inkscape can still edit it.
+savefig.bbox:       standard
+savefig.dpi:        600
+savefig.format:     pdf
+savefig.transparent: False
+pdf.fonttype:       42
+ps.fonttype:        42
+svg.fonttype:       none
+pdf.compression:    6
+figure.dpi:         150
+
+# =============================================================================
+#  DEFAULT font     == font_serif
+# =============================================================================
+font.family:        serif
+mathtext.fontset:   stix
+
+# =============================================================================
+#  DEFAULT size     == size_one_col  (3.37 in, one column of an APS/AIP page)
+#  Type: ticks and legend 9 pt, labels and titles 10 pt. See size_one_col for why.
+# =============================================================================
+figure.figsize:         3.37, 2.40
+font.size:              9.0
+axes.titlesize:         10.0
+axes.labelsize:         10.0
+xtick.labelsize:        9.0
+ytick.labelsize:        9.0
+legend.fontsize:        9.0
+axes.linewidth:         0.75
+axes.labelpad:          2.5
+axes.titlepad:          3.5
+lines.linewidth:        1.3
+lines.markersize:       3.2
+grid.linewidth:         0.45
+errorbar.capsize:       1.3
+xtick.major.size:       3.3
+ytick.major.size:       3.3
+xtick.minor.size:       1.8
+ytick.minor.size:       1.8
+xtick.major.width:      0.75
+ytick.major.width:      0.75
+xtick.minor.width:      0.6
+ytick.minor.width:      0.6
+xtick.major.pad:        2.8
+ytick.major.pad:        2.8
+legend.handlelength:    1.7
+
+# =============================================================================
+#  DEFAULT variant  == variant_journal  (four-sided box, ticks inward)
+# =============================================================================
+axes.spines.top:        True
+axes.spines.right:      True
+axes.spines.bottom:     True
+axes.spines.left:       True
+
+xtick.direction:        in
+ytick.direction:        in
+xtick.top:              True
+xtick.bottom:           True
+ytick.left:             True
+ytick.right:            True
+xtick.minor.top:        True
+xtick.minor.bottom:     True
+ytick.minor.left:       True
+ytick.minor.right:      True
+xtick.minor.visible:    True
+ytick.minor.visible:    True

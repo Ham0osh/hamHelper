@@ -5,7 +5,7 @@ until you call one of the setters below::
 
     import hamhelper.install as hi
 
-    hi.style.hamstyle()           # the look: light, serif, one column, journal frame
+    hi.style.hamstyle()           # the look: light, serif, one column, journal frame (or alightroom / adarkroom)
     hi.size.two_col()             # every figure from now on is 6.90 in wide
     with hi.size.one_col():       # ...except the ones made inside this block
         fig, ax = plt.subplots()
@@ -15,15 +15,16 @@ The look is built from independent axes. Each axis holds one choice at a time:
     =============  =============================================  =============
     axis           what it controls                               default
     =============  =============================================  =============
-    style          the overall look                               hamstyle
+    style          the overall look (hamstyle, alightroom,        hamstyle
+                   adarkroom)
     size           figure size and type size                      one_col
                    (one_col, one_col_tall, two_col, slide)
     variant        frame and tick geometry (journal, comms)       journal
     font           typeface (serif, sans)                         serif
-    palette        colour cycle (default, tol)                    default
+    palette        colour cycle (default, tol, alight, adark)     default
     cmap           default colormap for images (sunset_warm,      sunset_warm
-                   sunset_warm_w, iridescent, viridis, or any
-                   registered name)
+                   sunset_warm_w, grey, grey_dark, iridescent,
+                   viridis, or any registered name)
     redundancy     line style / marker per colour                 off
                    (off, dash, marker, both)
     grid           faint dotted grid (off, on)                    off
@@ -32,7 +33,8 @@ The look is built from independent axes. Each axis holds one choice at a time:
 The setters are stateful and order independent: ``hi.size.two_col(); hi.font.sans()`` and
 ``hi.font.sans(); hi.size.two_col()`` give identical rcParams, and the first call of any kind applies the whole look
 with the defaults above for everything you have not chosen. A style may declare its own defaults for the other axes
-(a monochrome style can ask for redundancy on); your explicit choices always win over those, whatever the call order.
+(alightroom and adarkroom ask for their own grey palette and colormap and for a line style per series); your explicit choices
+always win over those, whatever the call order.
 The first call also registers hamhelper's colormaps with matplotlib, because the default image.cmap is one of them.
 
 Every setter takes effect immediately and also returns a handle that undoes it when used in a ``with`` block::
@@ -65,12 +67,13 @@ _STYLE_DIR = Path(__file__).resolve().parent / 'styles'
 _AXES = ('style', 'size', 'variant', 'font', 'palette', 'cmap', 'redundancy', 'grid')
 
 _CHOICES = {
-    'style': ('hamstyle',),
+    'style': ('hamstyle', 'alightroom', 'adarkroom'),
     'size': ('one_col', 'one_col_tall', 'two_col', 'slide'),
     'variant': ('journal', 'comms'),
     'font': ('serif', 'sans'),
-    'palette': ('default', 'tol'),  # really whatever is in colours.PALETTES, see _choices()
-    'cmap': ('ham_sunset_warm', 'ham_sunset_warm_w', 'ptol_iridescent', 'viridis'),  # any registered name works too
+    'palette': ('default', 'tol', 'alight', 'adark'),  # really whatever is in colours.PALETTES, see _choices()
+    'cmap': ('ham_sunset_warm', 'ham_sunset_warm_w', 'ham_grey', 'ham_grey_dark', 'ptol_iridescent', 'viridis'),
+    # any registered name works too
     'redundancy': ('off', 'dash', 'marker', 'both'),
     'grid': ('off', 'on'),
 }
@@ -90,11 +93,18 @@ _DEFAULTS = {
 #: style name -> style file in hamhelper/styles/ (without .mplstyle). A style file is a complete, standalone look.
 _STYLE_FILES = {
     'hamstyle': 'hamStyle',
+    'alightroom': 'alightroom',
+    'adarkroom': 'adarkroom',
 }
 
 #: What each style asks for on the OTHER axes. An explicit choice from the user beats this; this beats _DEFAULTS.
 _STYLE_DEFAULTS = {
     'hamstyle': {},
+    # the two monochrome rooms: their own greys, a grey map for images, and a line style per series (greys this
+    # close are not told apart by tone alone). Not markers: a marker cycle breaks ax.fill and hist(histtype='step'),
+    # see redundancy.marker()
+    'alightroom': {'palette': 'alight', 'cmap': 'ham_grey', 'redundancy': 'dash'},
+    'adarkroom': {'palette': 'adark', 'cmap': 'ham_grey_dark', 'redundancy': 'dash'},
 }
 
 # size / variant / font choices are files named '<axis>_<choice>.mplstyle' in hamhelper/styles/.
@@ -289,6 +299,15 @@ class _Style(_Axis):
         """Light substrate, black ink, minimal frame; the look developed for physics papers and posters."""
         return _set('style', 'hamstyle')
 
+    def alightroom(self):
+        """hamstyle with every colour taken out: black ink on white, a ladder of greys for the series, and a
+        different line style on each (defaults for palette, cmap and redundancy; your own choices still win)."""
+        return _set('style', 'alightroom')
+
+    def adarkroom(self):
+        """The same, turned over: white ink on an off-black ground (#272727), exported dark too."""
+        return _set('style', 'adarkroom')
+
 
 class _Size(_Axis):
     _axis = 'size'
@@ -345,6 +364,14 @@ class _Palette(_Axis):
         """Eight-colour cycle from Tol's Vibrant (blue, red, cyan, orange, teal) plus three of his Muted."""
         return _set('palette', 'tol')
 
+    def alight(self):
+        """Eight greys for the white page of alightroom: ink to the dimmest that keeps 3.2:1 against white."""
+        return _set('palette', 'alight')
+
+    def adark(self):
+        """Eight greys for the dark ground of adarkroom: white down to the dimmest that keeps 3.2:1 on #272727."""
+        return _set('palette', 'adark')
+
     def get(self):
         """The Palette in force (the default one before anything has been applied): its cycle, names, pale bands
         and fit-component colours. Read colours from here and one script renders in any palette."""
@@ -362,6 +389,14 @@ class _Cmap(_Axis):
     def sunset_warm_w(self):
         """Same ramp with its floor pulled to white, so empty space stays page-white."""
         return _set('cmap', 'ham_sunset_warm_w')
+
+    def grey(self):
+        """White to black in equal steps of lightness: the map of alightroom."""
+        return _set('cmap', 'ham_grey')
+
+    def grey_dark(self):
+        """The dark ground (#272727) to white in equal steps of lightness: the map of adarkroom."""
+        return _set('cmap', 'ham_grey_dark')
 
     def iridescent(self):
         """Tol's Iridescent."""
@@ -384,11 +419,17 @@ class _Redundancy(_Axis):
         return _set('redundancy', 'dash')
 
     def marker(self):
-        """Each colour slot also gets its own marker (spaced along the line, not at every point)."""
+        """Each colour slot also gets its own marker (spaced along the line, not at every point).
+
+        Matplotlib hands the whole cycle to every artist that takes a cycle colour, and a filled polygon has no
+        `markevery`: with a marker cycle in force ``ax.fill(...)`` and ``ax.hist(..., histtype="step")`` raise
+        "Polygon.set() got an unexpected keyword argument 'markevery'". Lines, bars, errorbars, scatter,
+        fill_between and ax.stairs are fine; use dash() if you need the step histograms."""
         return _set('redundancy', 'marker')
 
     def both(self):
-        """Colour, line style and marker: survives a greyscale photocopy."""
+        """Colour, line style and marker: survives a greyscale photocopy. Same limit as marker(): no ax.fill or
+        step histograms."""
         return _set('redundancy', 'both')
 
 

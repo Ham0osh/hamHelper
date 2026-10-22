@@ -58,6 +58,20 @@ ytick.color:        000000
 xtick.labelcolor:   000000
 ytick.labelcolor:   000000
 
+# --- Boxes, whiskers, outlines ------------------------------------------------
+# Set here, at matplotlib's own values, because adarkroom and alightroom set them too: a key that only some styles
+# defined would be left behind in the next style's figures when you switch.
+patch.edgecolor:                    000000
+boxplot.boxprops.color:             000000
+boxplot.whiskerprops.color:         000000
+boxplot.capprops.color:             000000
+boxplot.flierprops.color:           000000
+boxplot.flierprops.markeredgecolor: 000000
+boxplot.medianprops.color:          C1
+boxplot.meanprops.color:            C2
+boxplot.meanprops.markerfacecolor:  C2
+boxplot.meanprops.markeredgecolor:  C2
+
 # --- Layering and titles -----------------------------------------------------
 # 'line' (matplotlib's default): ticks and grid sit above fills and images but
 # beneath lines. True would bury inward ticks under every image panel.
